@@ -12,6 +12,10 @@ namespace Kalix.ApiCrypto.AES
     {
         private readonly byte[] _key;
 
+        /// <summary>
+        /// Create the encyptor using an AES key
+        /// </summary>
+        /// <param name="key">Must be a valid AES key</param>
         public AESEncryptor(byte[] key)
         {
             _key = key;
