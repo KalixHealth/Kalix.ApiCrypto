@@ -102,3 +102,10 @@ class:
 
 Check out [Claims](http://self-issued.info/docs/draft-ietf-oauth-json-web-token.html#Claims) on the
 JWT reference docs for claims you might use in your access token.
+
+## Licence
+
+This project relies heavily on the "CLR-Security" project which uses the Microsoft Limited Permissive License (Ms-LPL).
+This limits this library to be compatible so we have also chosen to use the Microsoft Limited Permissive License (Ms-LPL).
+
+See the full licence in LICENSE.txt
