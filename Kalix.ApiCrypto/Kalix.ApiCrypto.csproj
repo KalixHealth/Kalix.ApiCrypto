@@ -47,7 +47,7 @@
     <Compile Include="AsymmetricPaddingMode.cs" />
     <Compile Include="EC\ECCertificateBuilder.cs" />
     <Compile Include="EC\ECCertificateBuilderOptions.cs" />
-    <Compile Include="EC\ECCertificateParser.cs" />
+    <Compile Include="EC\ECDSACertificateParser.cs" />
     <Compile Include="EC\ECNamedCurves.cs" />
     <Compile Include="JWT\JsonWebToken.cs" />
     <Compile Include="JWT\SignatureVerificationException.cs" />
@@ -56,7 +56,7 @@
     <Compile Include="RSA\RSACertificateParser.cs" />
     <Compile Include="RSA\RSACertificateBuilderOptions.cs" />
     <Compile Include="RSA\RSACertificateBuilder.cs" />
-    <Compile Include="RSA\RSACngServiceProvider.cs" />
+    <Compile Include="RSA\RSAServiceProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

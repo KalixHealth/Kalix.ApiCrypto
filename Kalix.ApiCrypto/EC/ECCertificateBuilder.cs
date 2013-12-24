@@ -6,6 +6,12 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace Kalix.ApiCrypto.EC
 {
+    /// <summary>
+    /// Helper class to build X509Certificates using the EC based algorithms
+    /// Right now it only supports signing certificates using ECDSA
+    /// 
+    /// Note that it uses the newer Cng library
+    /// </summary>
     public static class ECCertificateBuilder
     {
         /// <summary>
@@ -20,15 +26,15 @@ namespace Kalix.ApiCrypto.EC
                 FullSubjectName = "CN=" + subjectName,
                 ECCurve = ECNamedCurves.P521,
                 HashingMethod = HashingMethods.Sha256,
-                ECDSAKeyName = "ECDSA_" + subjectName
+                ECKeyName = "ECDSA_" + subjectName
             });
         }
 
         /// <summary>
         /// Create a ECDSA based certificate with the given options
         /// </summary>
-        /// <param name="buildOptions">Options to set </param>
-        /// <returns></returns>
+        /// <param name="buildOptions">Allows for more advanced configuration</param>
+        /// <returns>An exportable X509Certificate2 object (with private key)</returns>
         public static X509Certificate2 CreateNewSigningCertificate(ECCertificateBuilderOptions buildOptions)
         {
             if(buildOptions == null)
@@ -36,7 +42,7 @@ namespace Kalix.ApiCrypto.EC
                 throw new ArgumentNullException("buildOptions");
             }
 
-            string keyName = buildOptions.ECDSAKeyName ?? "ECDSAKey";
+            string keyName = buildOptions.ECKeyName ?? "ECDSAKey";
 
             CngKey objCngKey = null;
             if (CngKey.Exists(keyName))

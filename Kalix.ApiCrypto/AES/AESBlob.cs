@@ -5,15 +5,32 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace Kalix.ApiCrypto.AES
 {
+    /// <summary>
+    /// Helper library to create/use AES blobs encrypted with a RSA certificate
+    /// </summary>
     public static class AESBlob
     {
-        public static byte[] CreateBlob(AESKeySize keySize, X509Certificate2 rsaPrivateCert)
+        /// <summary>
+        /// Create an AES key that is encrypted using a RSA certificate
+        /// </summary>
+        /// <param name="keySize">Required AES key size</param>
+        /// <param name="rsaPublicCert">RSA public certificate used to sign</param>
+        /// <returns>data that can be stored</returns>
+        public static byte[] CreateBlob(AESKeySize keySize, X509Certificate2 rsaPublicCert)
         {
-            var cert = RSACertificateParser.ParsePrivateCertificate(rsaPrivateCert);
+            var cert = RSACertificateParser.ParsePublicCertificate(rsaPublicCert);
             return CreateBlob(keySize, cert);
         }
 
-        public static byte[] CreateBlob(AESKeySize keySize, RSACngServiceProvider rsaCert)
+        /// <summary>
+        /// Create an AES key that is encrypted using a RSA certificate, this is the parsed version for increased efficiancy
+        /// 
+        /// To create the parsed cert <see cref="Kalix.ApiCrypto.AES.RSACertificateParser.ParsePublicCertificate"/>
+        /// </summary>
+        /// <param name="keySize">Required AES key size</param>
+        /// <param name="rsaPublicCert">RSA parsed public certificate used to sign</param>
+        /// <returns>data that can be stored</returns>
+        public static byte[] CreateBlob(AESKeySize keySize, RSAServiceProvider rsaCert)
         {
             int intKeySize;
             switch (keySize)
@@ -35,19 +52,34 @@ namespace Kalix.ApiCrypto.AES
             aesProvider.KeySize = intKeySize;
             aesProvider.GenerateKey();
 
-            // This is the key that will be used
-            var key = aesProvider.Key;
+            // Encrypt using the RSA cert and return
+            return rsaCert.EncryptValue(aesProvider.Key);
+        }
 
-            // We will now encryt the key using the RSA provider
-            var encrypted = rsaCert.EncryptValue(key);
+        /// <summary>
+        /// Create an AES encryptor from an encrypted AES key, you can use the encryptor to create 
+        /// </summary>
+        /// <param name="blob">AES data created from the <see cref="CreateBlob"/> method</param>
+        /// <param name="rsaPrivateCert">RSA certificate to decrypt data, must have a private key</param>
+        /// <returns>Encryptor that can be used to encrypt/decrypt any number of documents</returns>
+        public static AESEncryptor CreateEncryptor(byte[] blob, X509Certificate2 rsaPrivateCert)
+        {
+            var cert = RSACertificateParser.ParsePrivateCertificate(rsaPrivateCert);
+            return CreateEncryptor(blob, cert);
+        }
 
-            // Attach the key size to the start
-            var keySizeBytes = BitConverter.GetBytes(intKeySize);
-            var allData = new byte[encrypted.Length + 4];
-            Buffer.BlockCopy(keySizeBytes, 0, allData, 0, 4);
-            Buffer.BlockCopy(encrypted, 0, allData, 4, encrypted.Length);
-
-            return allData;
+        /// <summary>
+        /// Create an AES encryptor from an encrypted AES key, you can use the encryptor to create. This is the parsed version for increased efficiancy
+        /// 
+        /// To create the parsed cert <see cref="Kalix.ApiCrypto.AES.RSACertificateParser.ParsePrivateCertificate"/>
+        /// </summary>
+        /// <param name="blob">AES data created from the <see cref="CreateBlob"/> method</param>
+        /// <param name="rsaPrivateCert">Parsed RSA certificate to decrypt data, must have a private key</param>
+        /// <returns>Encryptor that can be used to encrypt/decrypt any number of documents</returns>
+        public static AESEncryptor CreateEncryptor(byte[] blob, RSAServiceProvider rsaCert)
+        {
+            var key = rsaCert.DecryptValue(blob);
+            return new AESEncryptor(key);
         }
     }
 }

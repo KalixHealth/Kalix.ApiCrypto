@@ -38,6 +38,8 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AES\AESBlobTests.cs" />
+    <Compile Include="AES\AESEncryptorTests.cs" />
     <Compile Include="EC\ECCertificateBuilderTests.cs" />
     <Compile Include="EC\ECCertificateParserTest.cs" />
     <Compile Include="JWT\JsonWebTokenTests.cs" />

@@ -8,11 +8,11 @@ namespace Kalix.ApiCrypto.RSA
     /// A wrapper library to match the RSACryptoServiceProvider when using the Cng based private key
     /// Helps to avoid exposing the internal RSACng class
     /// </summary>
-    public class RSACngServiceProvider : System.Security.Cryptography.RSA
+    public class RSAServiceProvider : System.Security.Cryptography.RSA
     {
         private readonly RSACng _key;
 
-        internal RSACngServiceProvider(RSACng key)
+        internal RSAServiceProvider(RSACng key)
         {
             _key = key;
         }

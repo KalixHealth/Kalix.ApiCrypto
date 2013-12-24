@@ -6,18 +6,36 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
+// Heavily inspired by https://github.com/johnsheehan/jwt/blob/master/JWT/JWT.cs
+// However modified to work with ECDSA based certificates
 namespace Kalix.ApiCrypto.JWT
 {
-    // Heavily inspired by https://github.com/johnsheehan/jwt/blob/master/JWT/JWT.cs
-    // However modified to work with ECDSA based certificates
+    /// <summary>
+    /// Helper library to create JsonWebTokens
+    /// For more info see the <a href="http://self-issued.info/docs/draft-ietf-oauth-json-web-token.html">spec</a>
+    /// </summary>
     public static class JsonWebToken
     {
+        /// <summary>
+        /// Create a web token signed by an ECDSA X509Certificate
+        /// </summary>
+        /// <param name="claims">JSON serialisable data to be signed</param>
+        /// <param name="signingCertificate">Certificate to use for signing, must include a private key</param>
+        /// <returns>JWT token</returns>
         public static string EncodeUsingECDSA<T>(T claims, X509Certificate2 signingCertificate)
         {
-            var signer = ECCertificateParser.ParsePrivateCertificate(signingCertificate);
+            var signer = ECDSACertificateParser.ParsePrivateCertificate(signingCertificate);
             return EncodeUsingECDSA(claims, signer);
         }
 
+        /// <summary>
+        /// Create a web token signed by an ECDSA certificate, this is the parsed version for increased efficiancy
+        /// 
+        /// To create the signer <see cref="Kalix.ApiCrypto.EC.ECDSACertificateParser.ParsePrivateCertificate"/>
+        /// </summary>
+        /// <param name="claims">JSON serialisable data to be signed</param>
+        /// <param name="signingCertificate">Certificate data to use for signing</param>
+        /// <returns>JWT token</returns>
         public static string EncodeUsingECDSA<T>(T claims, ECDsaCng signer)
         {
             var segments = new List<string>();
@@ -38,12 +56,28 @@ namespace Kalix.ApiCrypto.JWT
             return string.Join(".", segments.ToArray());
         }
 
+        /// <summary>
+        /// Verify and then parse the data in a JWT
+        /// </summary>
+        /// <param name="token">The JWT to parse and verify</param>
+        /// <param name="verificationCertificate">Public key certificate to verify the token with</param>
+        /// <param name="verify">Whether to actually verify the token or not</param>
+        /// <returns>Parsed object data</returns>
         public static T DecodeUsingECDSA<T>(string token, X509Certificate2 verificationCertificate, bool verify = true)
         {
-            var verifier = ECCertificateParser.ParsePublicCertificate(verificationCertificate);
+            var verifier = ECDSACertificateParser.ParsePublicCertificate(verificationCertificate);
             return DecodeUsingECDSA<T>(token, verifier, verify);
         }
 
+        /// <summary>
+        /// Verify and then parse the data in a JWT, this is the parsed version for increased efficiancy
+        /// 
+        /// To create the verifier <see cref="Kalix.ApiCrypto.EC.ECDSACertificateParser.ParsePublicCertificate"/>
+        /// </summary>
+        /// <param name="token">The JWT to parse and verify</param>
+        /// <param name="verificationCertificate">Public key certificate to verify the token with</param>
+        /// <param name="verify">Whether to actually verify the token or not</param>
+        /// <returns>Parsed object data</returns>
         public static T DecodeUsingECDSA<T>(string token, ECDsaCng verifier, bool verify = true)
         {
             var parts = token.Split('.');

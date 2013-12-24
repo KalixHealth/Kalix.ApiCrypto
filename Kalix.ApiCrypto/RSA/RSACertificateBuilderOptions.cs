@@ -1,5 +1,8 @@
 ﻿namespace Kalix.ApiCrypto.RSA
 {
+    /// <summary>
+    /// Advanced options when building an RSA certificate
+    /// </summary>
     public class RSACertificateBuilderOptions
     {
         /// <summary>

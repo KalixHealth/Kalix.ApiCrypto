@@ -1,5 +1,8 @@
 ﻿namespace Kalix.ApiCrypto.EC
 {
+    /// <summary>
+    /// Advanced options when building an EC based certificate
+    /// </summary>
     public class ECCertificateBuilderOptions
     {
         /// <summary>
@@ -11,7 +14,7 @@
         /// <summary>
         /// Name of the internal EC keypair that is created
         /// </summary>
-        public string ECDSAKeyName { get; set; }
+        public string ECKeyName { get; set; }
 
         /// <summary>
         /// Select from the supported curves, higher key length is more secure

@@ -6,7 +6,10 @@ using System.Text;
 
 namespace Kalix.ApiCrypto.EC
 {
-    public static class ECCertificateParser
+    /// <summary>
+    /// Helper class to parse ECDSA based X509Certificates using the newer Cng libraries
+    /// </summary>
+    public static class ECDSACertificateParser
     {
         private const string P256OID = "1.2.840.10045.3.1.7";
         private const string P384OID = "1.3.132.0.34";

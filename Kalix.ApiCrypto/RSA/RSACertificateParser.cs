@@ -3,19 +3,21 @@ using Security.Cryptography.X509Certificates;
 using System;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 
 namespace Kalix.ApiCrypto.RSA
 {
+    /// <summary>
+    /// Helper class to parse RSA X509Certificates using the newer Cng libraries
+    /// </summary>
     public static class RSACertificateParser
     {
         /// <summary>
-        /// Parses the certificate to get access to the underlying RSACng implementation
-        /// Requires the private key so that the resulting RSACng can encrypt/sign
+        /// Parses the certificate to get access to the underlying RSAServiceProvider implementation
+        /// Requires the private key so that the resulting RSAServiceProvider can encrypt/sign
         /// </summary>
         /// <param name="certificate">A certificate from a file or store</param>
-        /// <returns>RSACngServiceProvider that can verify AND sign/encryt AND decrypt data</returns>
-        public static RSACngServiceProvider ParsePrivateCertificate(X509Certificate2 certificate)
+        /// <returns>RSAServiceProvider that can verify AND sign/encryt AND decrypt data</returns>
+        public static RSAServiceProvider ParsePrivateCertificate(X509Certificate2 certificate)
         {
             // Get the ECDSA private key (needs CngKey lib)
             var privateKey = certificate.GetCngPrivateKey();
@@ -25,18 +27,23 @@ namespace Kalix.ApiCrypto.RSA
             }
 
             var rsaCng = new RSACng(privateKey);
-            return new RSACngServiceProvider(rsaCng);
+            return new RSAServiceProvider(rsaCng);
         }
 
         /// <summary>
-        /// Parses the certificate to get access to the underlying RSACryptoServiceProvider implementation
+        /// Parses the certificate to get access to the underlying RSAServiceProvider implementation
         /// Only requires the public key
         /// </summary>
         /// <param name="certificate">A certificate from a file or store</param>
-        /// <returns>RSACryptoServiceProvider that can verify/encrypt data only</returns>
-        public static RSACryptoServiceProvider ParsePublicCertificate(X509Certificate2 certificate)
+        /// <returns>RSAServiceProvider that can verify/encrypt data only</returns>
+        public static RSAServiceProvider ParsePublicCertificate(X509Certificate2 certificate)
         {
-            return certificate.PublicKey.Key as RSACryptoServiceProvider;
+            var provider = certificate.PublicKey.Key as RSACryptoServiceProvider;
+            var parameters = provider.ExportParameters(false);
+            var rsaCng = new RSACng();
+            rsaCng.ImportParameters(parameters);
+
+            return new RSAServiceProvider(rsaCng);
         }
     }
 }

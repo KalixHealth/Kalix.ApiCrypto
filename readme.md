@@ -2,10 +2,12 @@
 
 Useful collection of classes to help with security of api endpoints
 
-Includes:
-- Utility function to create ECDSA (P521, P384, P256) key pairs (and export to pfx and cer)
-- Creation of JWT based tokens signed with ECDSA (P521, P384, P256) certificate
-- Utility function to create Cng based RSA key pairs (and export to pfx and cer)
+Features:
+- Create ECDSA (P521, P384, P256) key pairs (and export to pfx and cer)
+- Create Json Web Tokens signed with ECDSA (P521, P384, P256) certificate
+- Create Cng based RSA key pairs (and export to pfx and cer)
+- Create secure AES keys using RSA certificates
+- Encrypt/Decrypt files using AES with best practise in mind
 
 ## Examples of use
 
@@ -29,7 +31,23 @@ First step is to create the RSA certificate and the encrypted AES shared key:
     var privateData = cert.Export(X509ContentType.Pkcs12, "password");
     File.WriteAllBytes(Path.GetFullPath("private.pfx"), privateData);
 
+	// Create a blob that can be saved in blob storage or S3 etc
+	var blobData = AESBlob.CreateBlob(AESKeySize.AES256, cert);
 
+You will have to install the public/private key pair on all servers that need to encrypt/decrypt
+data. It will only be used to extract the AES key from the blob:
+
+    // Get the certificate from the store
+    var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+    store.Open(OpenFlags.ReadOnly);
+    var cert = store.Certificates.Find(X509FindType.FindBySubjectName, "SubjectName", false)[0];
+
+	// Create the encryptor
+	var encryptor = AESBlob.CreateEncryptor(blobData, cert);
+
+The encryptor has an `Encypt` and `Decrypt` method that is (read) stream based. This makes it
+easy to use for small or large files. It also follows best practice by creating a new IV per 
+file and adding it to the start of the stream. 
 
 ### Access Tokens (inc. OAuth)
 
@@ -65,6 +83,7 @@ should be installed on the machine that needs to verify them.
 Now when you need to create an access token in your oauth flow you can use the JsonWebToken
 class:
 
+    // Get the certificate from the store
     var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
     store.Open(OpenFlags.ReadOnly);
     var cert = store.Certificates.Find(X509FindType.FindBySubjectName, "SubjectName", false)[0];

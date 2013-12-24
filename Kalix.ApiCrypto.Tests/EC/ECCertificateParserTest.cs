@@ -22,7 +22,7 @@ namespace Kalix.ApiCrypto.Tests.EC
 
                 var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
 
-                var cng = ECCertificateParser.ParsePrivateCertificate(cert);
+                var cng = ECDSACertificateParser.ParsePrivateCertificate(cert);
 
                 Assert.IsNotNull(cng);
             }
@@ -38,7 +38,7 @@ namespace Kalix.ApiCrypto.Tests.EC
 
                 var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
 
-                var cng = ECCertificateParser.ParsePrivateCertificate(cert);
+                var cng = ECDSACertificateParser.ParsePrivateCertificate(cert);
 
                 Assert.IsNotNull(cng);
             }
@@ -54,7 +54,7 @@ namespace Kalix.ApiCrypto.Tests.EC
 
                 var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
 
-                var cng = ECCertificateParser.ParsePrivateCertificate(cert);
+                var cng = ECDSACertificateParser.ParsePrivateCertificate(cert);
 
                 Assert.IsNotNull(cng);
             }
@@ -67,7 +67,7 @@ namespace Kalix.ApiCrypto.Tests.EC
                 var data = cert.Export(X509ContentType.Cert);
                 var publicCert = new X509Certificate2(data);
 
-                ECCertificateParser.ParsePrivateCertificate(publicCert);
+                ECDSACertificateParser.ParsePrivateCertificate(publicCert);
             }
         }
 
@@ -85,7 +85,7 @@ namespace Kalix.ApiCrypto.Tests.EC
 
                 var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
 
-                var cng = ECCertificateParser.ParsePublicCertificate(cert);
+                var cng = ECDSACertificateParser.ParsePublicCertificate(cert);
 
                 Assert.IsNotNull(cng);
             }
@@ -101,7 +101,7 @@ namespace Kalix.ApiCrypto.Tests.EC
 
                 var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
 
-                var cng = ECCertificateParser.ParsePublicCertificate(cert);
+                var cng = ECDSACertificateParser.ParsePublicCertificate(cert);
 
                 Assert.IsNotNull(cng);
             }
@@ -117,7 +117,7 @@ namespace Kalix.ApiCrypto.Tests.EC
 
                 var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
 
-                var cng = ECCertificateParser.ParsePublicCertificate(cert);
+                var cng = ECDSACertificateParser.ParsePublicCertificate(cert);
 
                 Assert.IsNotNull(cng);
             }
@@ -129,7 +129,7 @@ namespace Kalix.ApiCrypto.Tests.EC
                 var data = cert.Export(X509ContentType.Cert);
                 var publicCert = new X509Certificate2(data);
 
-                var cng = ECCertificateParser.ParsePublicCertificate(publicCert);
+                var cng = ECDSACertificateParser.ParsePublicCertificate(publicCert);
                 Assert.IsNotNull(cng);
             }
         }

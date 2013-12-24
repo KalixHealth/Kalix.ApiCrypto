@@ -6,6 +6,11 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace Kalix.ApiCrypto.RSA
 {
+    /// <summary>
+    /// Helper class to build X509Certificates using the RSA algorithm
+    /// 
+    /// Note that it uses the newer Cng library
+    /// </summary>
     public static class RSACertificateBuilder
     {
         /// <summary>
@@ -27,8 +32,8 @@ namespace Kalix.ApiCrypto.RSA
         /// <summary>
         /// Create a RSA based certificate (to be used with encryption) with the given options
         /// </summary>
-        /// <param name="buildOptions">Options to set </param>
-        /// <returns></returns>
+        /// <param name="buildOptions">Allows for more advanced configuration</param>
+        /// <returns>An exportable X509Certificate2 object (with private key)</returns>
         public static X509Certificate2 CreateNewCertificate(RSACertificateBuilderOptions buildOptions)
         {
             if (buildOptions == null)
