@@ -1,7 +1,8 @@
 ﻿using Kalix.ApiCrypto.AES;
 using NUnit.Framework;
 using System;
-using System.IO;
+using System.Linq;
+using System.Reactive.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -16,32 +17,10 @@ namespace Kalix.ApiCrypto.Tests.AES
             var encryptor = CreateEncryptor(128);
             var data = Encoding.UTF8.GetBytes("Test message of awesome");
 
-            var encypted = encryptor.Encrypt(new MemoryStream(data));
-            var decrypted = ReadData(encryptor.Decrypt(encypted, true));
+            var encypted = encryptor.Encrypt(Observable.Return(data));
+            var decrypted = ReadData(encryptor.Decrypt(encypted));
 
             Assert.AreEqual("Test message of awesome", Encoding.UTF8.GetString(decrypted));
-        }
-
-        [Test]
-        public void EcyrptDecryptUsingWriteStreamsSucessful()
-        {
-            var encryptor = CreateEncryptor(128);
-            var data = Encoding.UTF8.GetBytes("Test message of awesome");
-            var encypted = new MemoryStream();
-
-            using (var tempEncStream = encryptor.Encrypt(encypted, false))
-            {
-                tempEncStream.Write(data, 0, data.Length);
-            }
-
-            var decrypted = new MemoryStream();
-            using (var tempDecStream = encryptor.Decrypt(decrypted))
-            {
-                var encData = encypted.ToArray();
-                tempDecStream.Write(encData, 0, encData.Length);
-            }
-
-            Assert.AreEqual("Test message of awesome", Encoding.UTF8.GetString(decrypted.ToArray()));
         }
 
         [Test]
@@ -50,8 +29,8 @@ namespace Kalix.ApiCrypto.Tests.AES
             var encryptor = CreateEncryptor(256);
             var data = Encoding.UTF8.GetBytes("Test message of awesome");
 
-            var encypted = encryptor.Encrypt(new MemoryStream(data));
-            var decrypted = ReadData(encryptor.Decrypt(encypted, true));
+            var encypted = encryptor.Encrypt(Observable.Return(data));
+            var decrypted = ReadData(encryptor.Decrypt(encypted));
 
             Assert.AreEqual("Test message of awesome", Encoding.UTF8.GetString(decrypted));
         }
@@ -60,10 +39,10 @@ namespace Kalix.ApiCrypto.Tests.AES
         public void AES256EncryptNotTheSame()
         {
             var encryptor = CreateEncryptor(256);
-            var data = Encoding.UTF8.GetBytes("Test message of awesome");
+            var data = Observable.Return(Encoding.UTF8.GetBytes("Test message of awesome"));
 
-            var encypted = Convert.ToBase64String(ReadData(encryptor.Encrypt(new MemoryStream(data))));
-            var encypted2 = Convert.ToBase64String(ReadData(encryptor.Encrypt(new MemoryStream(data))));
+            var encypted = Convert.ToBase64String(ReadData(encryptor.Encrypt(data)));
+            var encypted2 = Convert.ToBase64String(ReadData(encryptor.Encrypt(data)));
 
             Assert.AreNotEqual(encypted, encypted2);
         }
@@ -74,8 +53,8 @@ namespace Kalix.ApiCrypto.Tests.AES
             var encryptor = CreateEncryptor(128);
             var data = Encoding.UTF8.GetBytes("Test message of awesome");
 
-            var encypted = encryptor.Encrypt(new MemoryStream(data));
-            var decrypted = ReadData(encryptor.Decrypt(encypted, true));
+            var encypted = encryptor.Encrypt(Observable.Return(data));
+            var decrypted = ReadData(encryptor.Decrypt(encypted));
 
             Assert.AreEqual("Test message of awesome", Encoding.UTF8.GetString(decrypted));
         }
@@ -84,10 +63,10 @@ namespace Kalix.ApiCrypto.Tests.AES
         public void AES128EncryptNotTheSame()
         {
             var encryptor = CreateEncryptor(128);
-            var data = Encoding.UTF8.GetBytes("Test message of awesome");
+            var data = Observable.Return(Encoding.UTF8.GetBytes("Test message of awesome"));
 
-            var encypted = Convert.ToBase64String(ReadData(encryptor.Encrypt(new MemoryStream(data))));
-            var encypted2 = Convert.ToBase64String(ReadData(encryptor.Encrypt(new MemoryStream(data))));
+            var encypted = Convert.ToBase64String(ReadData(encryptor.Encrypt(data)));
+            var encypted2 = Convert.ToBase64String(ReadData(encryptor.Encrypt(data)));
 
             Assert.AreNotEqual(encypted, encypted2);
         }
@@ -98,8 +77,8 @@ namespace Kalix.ApiCrypto.Tests.AES
             var encryptor = CreateEncryptor(192);
             var data = Encoding.UTF8.GetBytes("Test message of awesome");
 
-            var encypted = encryptor.Encrypt(new MemoryStream(data));
-            var decrypted = ReadData(encryptor.Decrypt(encypted, true));
+            var encypted = encryptor.Encrypt(Observable.Return(data));
+            var decrypted = ReadData(encryptor.Decrypt(encypted));
 
             Assert.AreEqual("Test message of awesome", Encoding.UTF8.GetString(decrypted));
         }
@@ -108,10 +87,10 @@ namespace Kalix.ApiCrypto.Tests.AES
         public void AES192EncryptNotTheSame()
         {
             var encryptor = CreateEncryptor(192);
-            var data = Encoding.UTF8.GetBytes("Test message of awesome");
+            var data = Observable.Return(Encoding.UTF8.GetBytes("Test message of awesome"));
 
-            var encypted = Convert.ToBase64String(ReadData(encryptor.Encrypt(new MemoryStream(data))));
-            var encypted2 = Convert.ToBase64String(ReadData(encryptor.Encrypt(new MemoryStream(data))));
+            var encypted = Convert.ToBase64String(ReadData(encryptor.Encrypt(data)));
+            var encypted2 = Convert.ToBase64String(ReadData(encryptor.Encrypt(data)));
 
             Assert.AreNotEqual(encypted, encypted2);
         }
@@ -122,7 +101,7 @@ namespace Kalix.ApiCrypto.Tests.AES
         {
             var encryptor = new AESEncryptor(new byte[] { 20, 19, 29, 28, 13 });
             var data = Encoding.UTF8.GetBytes("Test message of awesome");
-            var encypted = Convert.ToBase64String(ReadData(encryptor.Encrypt(new MemoryStream(data))));
+            var encypted = Convert.ToBase64String(ReadData(encryptor.Encrypt(Observable.Return(data))));
         }
 
         private AESEncryptor CreateEncryptor(int keySizeInt)
@@ -134,13 +113,9 @@ namespace Kalix.ApiCrypto.Tests.AES
             return new AESEncryptor(aes.Key);
         }
 
-        private byte[] ReadData(Stream stream)
+        private byte[] ReadData(IObservable<byte[]> stream)
         {
-            using (var dataStream = new MemoryStream())
-            {
-                stream.CopyTo(dataStream);
-                return dataStream.ToArray();
-            }
+            return stream.ToEnumerable().SelectMany(b => b).ToArray();
         }
     }
 }
