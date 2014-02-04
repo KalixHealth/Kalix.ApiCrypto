@@ -218,6 +218,10 @@ namespace Kalix.ApiCrypto.AES
                         {
                             dataToRead = count;
                         }
+                        if(dataToRead > initialBytes.Length - streamPosition)
+                        {
+                            dataToRead = initialBytes.Length - streamPosition;
+                        }
 
                         Buffer.BlockCopy(buffer, offset, initialBytes, streamPosition, dataToRead);
 
