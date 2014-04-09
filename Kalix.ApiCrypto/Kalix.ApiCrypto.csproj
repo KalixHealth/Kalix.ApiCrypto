@@ -81,8 +81,10 @@
   <PropertyGroup>
     <PostBuildEvent>rmdir "$(ProjectDir)package" /s /q
 mkdir "$(ProjectDir)package\lib\net45"
-Xcopy.exe /Y "$(TargetPath)" "$(ProjectDir)package\lib\net45"
+Xcopy.exe /Y "$(TargetDir)Kalix.ApiCrypto.dll" "$(ProjectDir)package\lib\net45"
+Xcopy.exe /Y "$(TargetDir)Kalix.ApiCrypto.xml" "$(ProjectDir)package\lib\net45"
 Xcopy.exe /Y "$(SolutionDir)ExternalDeps\Security.Cryptography.dll" "$(ProjectDir)package\lib\net45"
+Xcopy.exe /Y "$(SolutionDir)ExternalDeps\Security.Cryptography.xml" "$(ProjectDir)package\lib\net45"
 Xcopy.exe /Y "$(ProjectDir)Kalix.ApiCrypto.nuspec" "$(ProjectDir)package"
 cd "$(ProjectDir)package"
 "$(SolutionDir)Nuget.exe" pack Kalix.ApiCrypto.nuspec

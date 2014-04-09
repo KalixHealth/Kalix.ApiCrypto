@@ -311,9 +311,16 @@ namespace Kalix.ApiCrypto.RSA
             return _key.VerifyHash(hash, signature, hashAlgorithm);
         }
 
+        /// <summary>
+        /// Dispose the provider
+        /// </summary>
+        /// <param name="disposing">Whether to dispose managed resources or not</param>
         protected override void Dispose(bool disposing)
         {
-            _key.Dispose();
+            if (disposing)
+            {
+                _key.Dispose();
+            }
         }
     }
 }

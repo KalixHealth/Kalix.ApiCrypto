@@ -25,10 +25,10 @@ namespace Kalix.ApiCrypto.AES
         /// <summary>
         /// Create an AES key that is encrypted using a RSA certificate, this is the parsed version for increased efficiancy
         /// 
-        /// To create the parsed cert <see cref="Kalix.ApiCrypto.AES.RSACertificateParser.ParsePublicCertificate"/>
+        /// To create the parsed cert <see cref="Kalix.ApiCrypto.RSA.RSACertificateParser.ParsePublicCertificate"/>
         /// </summary>
         /// <param name="keySize">Required AES key size</param>
-        /// <param name="rsaPublicCert">RSA parsed public certificate used to sign</param>
+        /// <param name="rsaCert">RSA parsed public certificate used to sign</param>
         /// <returns>data that can be stored</returns>
         public static byte[] CreateBlob(AESKeySize keySize, RSAServiceProvider rsaCert)
         {
@@ -59,7 +59,7 @@ namespace Kalix.ApiCrypto.AES
         /// <summary>
         /// Create an AES encryptor from an encrypted AES key, you can use the encryptor to create 
         /// </summary>
-        /// <param name="blob">AES data created from the <see cref="CreateBlob"/> method</param>
+        /// <param name="blob">AES data created from the <see cref="CreateBlob(AESKeySize, X509Certificate2)"/> or <see cref="CreateBlob(AESKeySize, RSAServiceProvider)"/> method</param>
         /// <param name="rsaPrivateCert">RSA certificate to decrypt data, must have a private key</param>
         /// <returns>Encryptor that can be used to encrypt/decrypt any number of documents</returns>
         public static AESEncryptor CreateEncryptor(byte[] blob, X509Certificate2 rsaPrivateCert)
@@ -71,10 +71,10 @@ namespace Kalix.ApiCrypto.AES
         /// <summary>
         /// Create an AES encryptor from an encrypted AES key, you can use the encryptor to create. This is the parsed version for increased efficiancy
         /// 
-        /// To create the parsed cert <see cref="Kalix.ApiCrypto.AES.RSACertificateParser.ParsePrivateCertificate"/>
+        /// To create the parsed cert <see cref="Kalix.ApiCrypto.RSA.RSACertificateParser.ParsePrivateCertificate"/>
         /// </summary>
-        /// <param name="blob">AES data created from the <see cref="CreateBlob"/> method</param>
-        /// <param name="rsaPrivateCert">Parsed RSA certificate to decrypt data, must have a private key</param>
+        /// <param name="blob">AES data created from the <see cref="CreateBlob(AESKeySize, X509Certificate2)"/> or <see cref="CreateBlob(AESKeySize, RSAServiceProvider)"/> method</param>
+        /// <param name="rsaCert">Parsed RSA certificate to decrypt data, must have a private key</param>
         /// <returns>Encryptor that can be used to encrypt/decrypt any number of documents</returns>
         public static AESEncryptor CreateEncryptor(byte[] blob, RSAServiceProvider rsaCert)
         {

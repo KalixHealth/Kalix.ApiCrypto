@@ -36,10 +36,10 @@ namespace Kalix.ApiCrypto.JWT
         /// <param name="claims">JSON serialisable data to be signed</param>
         /// <param name="signingCertificate">Certificate data to use for signing</param>
         /// <returns>JWT token</returns>
-        public static string EncodeUsingECDSA<T>(T claims, ECDsaCng signer)
+        public static string EncodeUsingECDSA<T>(T claims, ECDsaCng signingCertificate)
         {
             var segments = new List<string>();
-            var header = new { typ = "JWT", alg = "ES" + signer.KeySize };
+            var header = new { typ = "JWT", alg = "ES" + signingCertificate.KeySize };
 
             byte[] headerBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(header));
             byte[] payloadBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(claims));
@@ -50,7 +50,7 @@ namespace Kalix.ApiCrypto.JWT
             var stringToSign = string.Join(".", segments.ToArray());
             var bytesToSign = Encoding.UTF8.GetBytes(stringToSign);
 
-            byte[] signature = signer.SignData(bytesToSign);
+            byte[] signature = signingCertificate.SignData(bytesToSign);
             segments.Add(Base64UrlEncode(signature));
 
             return string.Join(".", segments.ToArray());
@@ -78,7 +78,7 @@ namespace Kalix.ApiCrypto.JWT
         /// <param name="verificationCertificate">Public key certificate to verify the token with</param>
         /// <param name="verify">Whether to actually verify the token or not</param>
         /// <returns>Parsed object data</returns>
-        public static T DecodeUsingECDSA<T>(string token, ECDsaCng verifier, bool verify = true)
+        public static T DecodeUsingECDSA<T>(string token, ECDsaCng verificationCertificate, bool verify = true)
         {
             var parts = token.Split('.');
             var header = parts[0];
@@ -92,7 +92,7 @@ namespace Kalix.ApiCrypto.JWT
                     throw new SignatureVerificationException(string.Format("Unsupported signing algorithm."));
                 }
 
-                if (verifier.KeySize.ToString() != headerDetails["alg"].Substring(2))
+                if (verificationCertificate.KeySize.ToString() != headerDetails["alg"].Substring(2))
                 {
                     throw new SignatureVerificationException(string.Format("Key size does not match."));
                 }
@@ -100,7 +100,7 @@ namespace Kalix.ApiCrypto.JWT
                 var compare = Encoding.UTF8.GetBytes(string.Concat(header, ".", payload));
                 byte[] signature = Base64UrlDecode(parts[2]);
 
-                if (!verifier.VerifyData(compare, signature))
+                if (!verificationCertificate.VerifyData(compare, signature))
                 {
                     throw new SignatureVerificationException(string.Format("Invalid signature."));
                 }

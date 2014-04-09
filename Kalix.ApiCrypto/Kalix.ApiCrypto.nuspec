@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Kalix.ApiCrypto</id>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <authors>Felix Jorkowski (jorkowski.com)</authors>
     <owners>Kalix (www.kalixhealth.com)</owners>
     <licenseUrl>http://www.ohloh.net/licenses/mslpl</licenseUrl>
@@ -21,6 +21,9 @@
     <summary>
       Library to help secure web endpoints and data at rest. Uses ECDSA (P521, P384, P256) to create tokens using JWT. Encrypt/Decrypt data using AES, assuming AES key is encrypted using RSA certificate.
     </summary>
+    <releaseNotes>
+      Added xml comments to package
+    </releaseNotes>
     <copyright>Copyright 2014</copyright>
     <tags>Cng Crypto Api JWT ECDSA RSA AES</tags>
     <dependencies>
