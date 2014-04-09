@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kalix.ApiCrypto", "Kalix.ApiCrypto\Kalix.ApiCrypto.csproj", "{B3D329A2-22AB-45F6-A8A2-A50409821853}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kalix.ApiCrypto.Tests", "Kalix.ApiCrypto.Tests\Kalix.ApiCrypto.Tests.csproj", "{FFE5ADB2-6944-4190-BC46-F03DEAFB6193}"
@@ -10,14 +8,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{812FADFF-27D9-47F9-90A9-5C01829DE3D7}"
 	ProjectSection(SolutionItems) = preProject
 		LICENSE.txt = LICENSE.txt
+		NuGet.exe = NuGet.exe
 		readme.md = readme.md
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{29E8AD58-CBF9-4A03-8FE6-4D2CD68ED4BE}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
 Global
