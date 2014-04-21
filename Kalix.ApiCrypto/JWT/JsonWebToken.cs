@@ -57,6 +57,25 @@ namespace Kalix.ApiCrypto.JWT
         }
 
         /// <summary>
+        /// Create a web token that is not signed
+        /// </summary>
+        /// <param name="claims">JSON serialisable data</param>
+        /// <returns>JWT token with only 2 parts</returns>
+        public static string Encode<T>(T claims)
+        {
+            var segments = new List<string>();
+            var header = new { typ = "JWT" };
+
+            byte[] headerBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(header));
+            byte[] payloadBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(claims));
+
+            segments.Add(Base64UrlEncode(headerBytes));
+            segments.Add(Base64UrlEncode(payloadBytes));
+
+            return string.Join(".", segments.ToArray());
+        }
+
+        /// <summary>
         /// Verify and then parse the data in a JWT
         /// </summary>
         /// <param name="token">The JWT to parse and verify</param>
