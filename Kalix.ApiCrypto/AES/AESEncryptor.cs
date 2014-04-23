@@ -253,13 +253,20 @@ namespace Kalix.ApiCrypto.AES
                 (e) => { obs.OnError(e); },
                 () => 
                 {
-                    var d = decryptor.TransformFinalBlock(initialBytes, 0, streamPosition);
-                    if (d.Length > 0)
+                    try
                     {
-                        obs.OnNext(d);
-                    }
+                        var d = decryptor.TransformFinalBlock(initialBytes, 0, streamPosition);
+                        if (d.Length > 0)
+                        {
+                            obs.OnNext(d);
+                        }
 
-                    obs.OnCompleted(); 
+                        obs.OnCompleted();
+                    }
+                    catch(Exception e)
+                    {
+                        obs.OnError(e);
+                    }
                 });
             });
         }
