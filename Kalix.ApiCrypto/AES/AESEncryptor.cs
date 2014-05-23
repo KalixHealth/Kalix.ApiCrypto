@@ -50,44 +50,58 @@ namespace Kalix.ApiCrypto.AES
                 return BufferBytes(data, encryptor.InputBlockSize)
                     .Subscribe((d) =>
                     {
-                        var enc = new byte[encryptor.OutputBlockSize];
-                        if (d.Length != encryptor.InputBlockSize)
+                        try
                         {
-                            var final = encryptor.TransformFinalBlock(d, 0, d.Length);
-                            if (final.Length > 0)
+                            var enc = new byte[encryptor.OutputBlockSize];
+                            if (d.Length != encryptor.InputBlockSize)
                             {
-                                obs.OnNext(final);
-                            }
-                            hasFinished = true;
-                        }
-                        else
-                        {
-                            var read = encryptor.TransformBlock(d, 0, d.Length, enc, 0);
-                            if (read == enc.Length)
-                            {
-                                obs.OnNext(enc);
+                                var final = encryptor.TransformFinalBlock(d, 0, d.Length);
+                                if (final.Length > 0)
+                                {
+                                    obs.OnNext(final);
+                                }
+                                hasFinished = true;
                             }
                             else
                             {
-                                var newEnc = new byte[read];
-                                Buffer.BlockCopy(enc, 0, newEnc, 0, read);
-                                obs.OnNext(newEnc);
+                                var read = encryptor.TransformBlock(d, 0, d.Length, enc, 0);
+                                if (read == enc.Length)
+                                {
+                                    obs.OnNext(enc);
+                                }
+                                else
+                                {
+                                    var newEnc = new byte[read];
+                                    Buffer.BlockCopy(enc, 0, newEnc, 0, read);
+                                    obs.OnNext(newEnc);
+                                }
                             }
+                        }
+                        catch(Exception e)
+                        {
+                            obs.OnError(e);
                         }
                     },
                     (e) => { obs.OnError(e); },
                     () => 
                     {
-                        if (!hasFinished)
+                        try
                         {
-                            var d = encryptor.TransformFinalBlock(new byte[0], 0, 0);
-                            if (d.Length > 0)
+                            if (!hasFinished)
                             {
-                                obs.OnNext(d);
+                                var d = encryptor.TransformFinalBlock(new byte[0], 0, 0);
+                                if (d.Length > 0)
+                                {
+                                    obs.OnNext(d);
+                                }
                             }
-                        }
 
-                        obs.OnCompleted(); 
+                            obs.OnCompleted();
+                        }
+                        catch(Exception e)
+                        {
+                            obs.OnError(e);
+                        }
                     });
             });
         }
@@ -165,89 +179,96 @@ namespace Kalix.ApiCrypto.AES
 
                 return data.Subscribe((buffer) =>
                 {
-                    // Calculate length of IV
-                    var count = buffer.Length;
-                    var offset = 0;
-                    var intBytesLength = 4 - position;
-                    if (intBytesLength > 0)
+                    try
                     {
-                        if (intBytesLength > count) { intBytesLength = count; }
-                        Buffer.BlockCopy(buffer, offset, initialBytes, position, intBytesLength);
-                        offset = offset + intBytesLength;
-                        count = count - intBytesLength;
-                        position = position + intBytesLength;
-
-                        if (position == 4)
+                        // Calculate length of IV
+                        var count = buffer.Length;
+                        var offset = 0;
+                        var intBytesLength = 4 - position;
+                        if (intBytesLength > 0)
                         {
-                            ivLength = BitConverter.ToInt32(initialBytes, 0);
-                            initialBytes = new byte[ivLength];
-                        }
-                    }
+                            if (intBytesLength > count) { intBytesLength = count; }
+                            Buffer.BlockCopy(buffer, offset, initialBytes, position, intBytesLength);
+                            offset = offset + intBytesLength;
+                            count = count - intBytesLength;
+                            position = position + intBytesLength;
 
-                    // Get the IV
-                    var ivBytesLength = 4 + ivLength - position;
-                    if (count > 0 && ivBytesLength > 0)
-                    {
-                        if (ivBytesLength > count) { ivBytesLength = count; }
-                        Buffer.BlockCopy(buffer, offset, initialBytes, position - 4, ivBytesLength);
-                        offset = offset + ivBytesLength;
-                        count = count - ivBytesLength;
-                        position = position + ivBytesLength;
-
-                        // We finally have the IV, change the data stream to match
-                        if (position == 4 + ivLength)
-                        {
-                            aesProvider.IV = initialBytes;
-                            decryptor = aesProvider.CreateDecryptor();
-                            initialBytes = new byte[decryptor.InputBlockSize];
-                            streamPosition = 0;
-                        }
-                    }
-
-                    // Do the decryption now
-                    while (count > 0)
-                    {
-                        if (decryptor == null)
-                        {
-                            obs.OnError(new InvalidOperationException("Format incorrect, could not setup the crypto stream as IV data was missing"));
-                            return;
-                        }
-
-                        var dataToRead = buffer.Length - offset;
-                        if (dataToRead > count)
-                        {
-                            dataToRead = count;
-                        }
-                        if(dataToRead > initialBytes.Length - streamPosition)
-                        {
-                            dataToRead = initialBytes.Length - streamPosition;
-                        }
-
-                        Buffer.BlockCopy(buffer, offset, initialBytes, streamPosition, dataToRead);
-
-                        count -= dataToRead;
-                        offset += dataToRead;
-                        streamPosition += dataToRead;
-
-                        if (streamPosition >= initialBytes.Length)
-                        {
-                            var enc = new byte[decryptor.OutputBlockSize];
-                            var read = decryptor.TransformBlock(initialBytes, 0, initialBytes.Length, enc, 0);
-                            if (read == enc.Length)
+                            if (position == 4)
                             {
-                                obs.OnNext(enc);
+                                ivLength = BitConverter.ToInt32(initialBytes, 0);
+                                initialBytes = new byte[ivLength];
                             }
-                            else
+                        }
+
+                        // Get the IV
+                        var ivBytesLength = 4 + ivLength - position;
+                        if (count > 0 && ivBytesLength > 0)
+                        {
+                            if (ivBytesLength > count) { ivBytesLength = count; }
+                            Buffer.BlockCopy(buffer, offset, initialBytes, position - 4, ivBytesLength);
+                            offset = offset + ivBytesLength;
+                            count = count - ivBytesLength;
+                            position = position + ivBytesLength;
+
+                            // We finally have the IV, change the data stream to match
+                            if (position == 4 + ivLength)
                             {
-                                var newEnc = new byte[read];
-                                Buffer.BlockCopy(enc, 0, newEnc, 0, read);
-                                obs.OnNext(newEnc);
+                                aesProvider.IV = initialBytes;
+                                decryptor = aesProvider.CreateDecryptor();
+                                initialBytes = new byte[decryptor.InputBlockSize];
+                                streamPosition = 0;
+                            }
+                        }
+
+                        // Do the decryption now
+                        while (count > 0)
+                        {
+                            if (decryptor == null)
+                            {
+                                obs.OnError(new InvalidOperationException("Format incorrect, could not setup the crypto stream as IV data was missing"));
+                                return;
                             }
 
+                            var dataToRead = buffer.Length - offset;
+                            if (dataToRead > count)
+                            {
+                                dataToRead = count;
+                            }
+                            if (dataToRead > initialBytes.Length - streamPosition)
+                            {
+                                dataToRead = initialBytes.Length - streamPosition;
+                            }
 
-                            initialBytes = new byte[decryptor.InputBlockSize];
-                            streamPosition = 0;
+                            Buffer.BlockCopy(buffer, offset, initialBytes, streamPosition, dataToRead);
+
+                            count -= dataToRead;
+                            offset += dataToRead;
+                            streamPosition += dataToRead;
+
+                            if (streamPosition >= initialBytes.Length)
+                            {
+                                var enc = new byte[decryptor.OutputBlockSize];
+                                var read = decryptor.TransformBlock(initialBytes, 0, initialBytes.Length, enc, 0);
+                                if (read == enc.Length)
+                                {
+                                    obs.OnNext(enc);
+                                }
+                                else
+                                {
+                                    var newEnc = new byte[read];
+                                    Buffer.BlockCopy(enc, 0, newEnc, 0, read);
+                                    obs.OnNext(newEnc);
+                                }
+
+
+                                initialBytes = new byte[decryptor.InputBlockSize];
+                                streamPosition = 0;
+                            }
                         }
+                    }
+                    catch(Exception e)
+                    {
+                        obs.OnError(e);
                     }
                 },
                 (e) => { obs.OnError(e); },
