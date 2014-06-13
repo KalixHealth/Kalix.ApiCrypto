@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Kalix.ApiCrypto</id>
-    <version>1.1.3</version>
+    <version>1.1.4</version>
     <authors>Felix Jorkowski (jorkowski.com)</authors>
     <owners>Kalix (www.kalixhealth.com)</owners>
     <licenseUrl>http://www.ohloh.net/licenses/mslpl</licenseUrl>
@@ -27,8 +27,8 @@
     <copyright>Copyright 2014</copyright>
     <tags>Cng Crypto Api JWT ECDSA RSA AES</tags>
     <dependencies>
-      <dependency id="Rx-Linq" version="2.2.2" />
-      <dependency id="Newtonsoft.Json" version="6.0.2" />
+      <dependency id="Rx-Main" version="2.2.4" />
+      <dependency id="Newtonsoft.Json" version="6.0.3" />
     </dependencies>
   </metadata>
 </package>

@@ -3,6 +3,7 @@ using System.IO;
 using System.Reactive.Linq;
 using System.Security.Cryptography;
 using System.Linq;
+using System.Reactive.Concurrency;
 
 namespace Kalix.ApiCrypto.AES
 {
@@ -103,7 +104,7 @@ namespace Kalix.ApiCrypto.AES
                             obs.OnError(e);
                         }
                     });
-            });
+            }).SubscribeOn(TaskPoolScheduler.Default);
         }
 
         private static IObservable<byte[]> BufferBytes(IObservable<byte[]> stream, int bytesPerPacket)
@@ -153,7 +154,7 @@ namespace Kalix.ApiCrypto.AES
                     }
                     obs.OnCompleted();
                 });
-            });
+            }).SubscribeOn(TaskPoolScheduler.Default);
         }
 
         /// <summary>
@@ -289,7 +290,7 @@ namespace Kalix.ApiCrypto.AES
                         obs.OnError(e);
                     }
                 });
-            });
+            }).SubscribeOn(TaskPoolScheduler.Default);
         }
     }
 }
