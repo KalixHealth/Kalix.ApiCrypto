@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Kalix.ApiCrypto</id>
-    <version>1.1.4</version>
+    <version>2.0.0</version>
     <authors>Felix Jorkowski (jorkowski.com)</authors>
     <owners>Kalix (www.kalixhealth.com)</owners>
     <licenseUrl>http://www.ohloh.net/licenses/mslpl</licenseUrl>
@@ -14,7 +14,7 @@
       - RSA, AES
       - JWT using ECDSA signing
       - Encrypt/Decrypt data using AES, assuming AES key is encrypted using RSA certificate
-      - IObservable based streams
+      - Stream based
       
       Initially created to work with the Kalix 'Leo' engine (see Kalix.Leo)
     </description>
@@ -22,13 +22,12 @@
       Library to help secure web endpoints and data at rest. Uses ECDSA (P521, P384, P256) to create tokens using JWT. Encrypt/Decrypt data using AES, assuming AES key is encrypted using RSA certificate.
     </summary>
     <releaseNotes>
-      AES Encryptor better error handling (v2)
+      Major Update - removed IObservable based streams and replaced with normal streams. IObservable is too unreliable...
     </releaseNotes>
     <copyright>Copyright 2014</copyright>
     <tags>Cng Crypto Api JWT ECDSA RSA AES</tags>
     <dependencies>
-      <dependency id="Rx-Main" version="2.2.4" />
-      <dependency id="Newtonsoft.Json" version="6.0.3" />
+      <dependency id="Newtonsoft.Json" version="6.0.5" />
     </dependencies>
   </metadata>
 </package>

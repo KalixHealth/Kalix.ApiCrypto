@@ -2,10 +2,8 @@
 using Kalix.ApiCrypto.RSA;
 using NUnit.Framework;
 using System;
-using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Reactive.Linq;
 
 namespace Kalix.ApiCrypto.Tests.AES
 {
@@ -20,7 +18,7 @@ namespace Kalix.ApiCrypto.Tests.AES
             var encryptor = AESBlob.CreateEncryptor(blob, cert);
 
             var data = Encoding.UTF8.GetBytes("Super secret secret");
-            encryptor.Encrypt(Observable.Return(data)).Wait();
+            encryptor.Encrypt(data);
         }
 
         [Test]
@@ -31,7 +29,7 @@ namespace Kalix.ApiCrypto.Tests.AES
             var encryptor = AESBlob.CreateEncryptor(blob, cert);
 
             var data = Encoding.UTF8.GetBytes("Super secret secret");
-            encryptor.Encrypt(Observable.Return(data)).Wait();
+            encryptor.Encrypt(data);
         }
 
         [Test]
@@ -42,7 +40,7 @@ namespace Kalix.ApiCrypto.Tests.AES
             var encryptor = AESBlob.CreateEncryptor(blob, cert);
 
             var data = Encoding.UTF8.GetBytes("Super secret secret");
-            encryptor.Encrypt(Observable.Return(data)).Wait();
+            encryptor.Encrypt(data);
         }
 
         [Test]
