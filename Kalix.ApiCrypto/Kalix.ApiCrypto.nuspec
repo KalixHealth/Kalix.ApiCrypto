@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Kalix.ApiCrypto</id>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
     <authors>Felix Jorkowski (jorkowski.com)</authors>
     <owners>Kalix (www.kalixhealth.com)</owners>
     <licenseUrl>http://www.ohloh.net/licenses/mslpl</licenseUrl>
@@ -22,7 +22,7 @@
       Library to help secure web endpoints and data at rest. Uses ECDSA (P521, P384, P256) to create tokens using JWT. Encrypt/Decrypt data using AES, assuming AES key is encrypted using RSA certificate.
     </summary>
     <releaseNotes>
-      Major Update - removed IObservable based streams and replaced with normal streams. IObservable is too unreliable...
+      Properly implement read/write async methods on stream classes
     </releaseNotes>
     <copyright>Copyright 2014</copyright>
     <tags>Cng Crypto Api JWT ECDSA RSA AES</tags>

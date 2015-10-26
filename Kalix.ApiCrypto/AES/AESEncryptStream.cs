@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Security.Cryptography;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Kalix.ApiCrypto.AES
 {
@@ -90,6 +92,36 @@ namespace Kalix.ApiCrypto.AES
             return read;
         }
 
+        public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken ct)
+        {
+            if (_isDisposed) { throw new ObjectDisposedException("AESEncryptStream"); }
+
+            int read = 0;
+            if (_initialBytes != null)
+            {
+                var max = _initialBytes.Length - _initialBytesWritten;
+                var length = Math.Min(count, max);
+                Buffer.BlockCopy(_initialBytes, _initialBytesWritten, buffer, offset, length);
+
+                read += length;
+                offset += length;
+                count -= length;
+                _initialBytesWritten += length;
+
+                if (_initialBytesWritten >= _initialBytes.Length)
+                {
+                    _initialBytes = null;
+                }
+            }
+
+            if (count > 0)
+            {
+                read += await _cryptoStream.ReadAsync(buffer, offset, count, ct).ConfigureAwait(false);
+            }
+
+            return read;
+        }
+
         public override void Write(byte[] buffer, int offset, int count)
         {
             if (_isDisposed) { throw new ObjectDisposedException("AESEncryptStream"); }
@@ -103,12 +135,33 @@ namespace Kalix.ApiCrypto.AES
             _cryptoStream.Write(buffer, offset, count);
         }
 
+        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken ct)
+        {
+            if (_isDisposed) { throw new ObjectDisposedException("AESEncryptStream"); }
+
+            if (_initialBytes != null)
+            {
+                await _internalStream.WriteAsync(_initialBytes, 0, _initialBytes.Length, ct).ConfigureAwait(false);
+                _initialBytes = null;
+            }
+
+            await _cryptoStream.WriteAsync(buffer, offset, count, ct).ConfigureAwait(false);
+        }
+
         public override void Flush()
         {
             if (_isDisposed) { throw new ObjectDisposedException("AESEncryptStream"); }
 
             _cryptoStream.Flush();
             _internalStream.Flush();
+        }
+
+        public override async Task FlushAsync(CancellationToken ct)
+        {
+            if (_isDisposed) { throw new ObjectDisposedException("AESEncryptStream"); }
+
+            await _cryptoStream.FlushAsync(ct).ConfigureAwait(false);
+            await _internalStream.FlushAsync(ct).ConfigureAwait(false);
         }
 
         protected override void Dispose(bool disposing)

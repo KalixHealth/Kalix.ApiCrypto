@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Security.Cryptography;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Kalix.ApiCrypto.AES
 {
@@ -87,6 +89,37 @@ namespace Kalix.ApiCrypto.AES
             return _cryptoStream.Read(buffer, offset, count);
         }
 
+        public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken ct)
+        {
+            if (_isDisposed) { throw new ObjectDisposedException("AESDecryptStream"); }
+
+            if (_cryptoStream == null)
+            {
+                var ivLengthBytes = new byte[4];
+                var read = await _internalStream.ReadAsync(ivLengthBytes, 0, 4, ct).ConfigureAwait(false);
+                if (read != 4)
+                {
+                    throw new InvalidOperationException("Stream did not have enough data for IV length");
+                }
+
+                var ivLength = BitConverter.ToInt32(ivLengthBytes, 0);
+                var iv = new byte[ivLength];
+                read = await _internalStream.ReadAsync(iv, 0, ivLength, ct).ConfigureAwait(false);
+                if (read != ivLength)
+                {
+                    throw new InvalidOperationException("Stream did not have enough data for IV");
+                }
+
+                var aesProvider = new RijndaelManaged();
+                aesProvider.Key = _aesKey;
+                aesProvider.IV = iv;
+                var decryptor = aesProvider.CreateDecryptor();
+                _cryptoStream = new CryptoStream(_internalStream, decryptor, CryptoStreamMode.Read);
+            }
+
+            return await _cryptoStream.ReadAsync(buffer, offset, count, ct).ConfigureAwait(false);
+        }
+
         public override void Write(byte[] buffer, int offset, int count)
         {
             if (_isDisposed) { throw new ObjectDisposedException("AESDecryptStream"); }
@@ -144,6 +177,63 @@ namespace Kalix.ApiCrypto.AES
             }
         }
 
+        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken ct)
+        {
+            if (_isDisposed) { throw new ObjectDisposedException("AESDecryptStream"); }
+
+            // Build up internal buffers until we have enough to create crypto stream...
+            if (_cryptoStream == null)
+            {
+                if (_ivLengthBytesWritten != 4)
+                {
+                    if (_ivLengthBytes == null)
+                    {
+                        _ivLengthBytes = new byte[4];
+                    }
+
+                    var length = Math.Min(4 - _ivLengthBytesWritten, count);
+                    Buffer.BlockCopy(buffer, offset, _ivLengthBytes, _ivLengthBytesWritten, length);
+
+                    offset += length;
+                    count -= length;
+                    _ivLengthBytesWritten += length;
+                }
+
+                if (count > 0 && _ivLengthBytesWritten == 4)
+                {
+                    if (_iv == null)
+                    {
+                        _iv = new byte[BitConverter.ToInt32(_ivLengthBytes, 0)];
+                    }
+
+                    var length = Math.Min(_iv.Length - _ivWritten, count);
+                    Buffer.BlockCopy(buffer, offset, _iv, _ivWritten, length);
+
+                    offset += length;
+                    count -= length;
+                    _ivWritten += length;
+
+                    if (_ivWritten == _iv.Length)
+                    {
+                        var aesProvider = new RijndaelManaged();
+                        aesProvider.Key = _aesKey;
+                        aesProvider.IV = _iv;
+                        var decryptor = aesProvider.CreateDecryptor();
+                        _cryptoStream = new CryptoStream(_internalStream, decryptor, CryptoStreamMode.Write);
+
+                        // Free up some memory...
+                        _iv = null;
+                        _ivLengthBytes = null;
+                    }
+                }
+            }
+
+            if (count > 0)
+            {
+                await _cryptoStream.WriteAsync(buffer, offset, count, ct).ConfigureAwait(false);
+            }
+        }
+
         public override void Flush()
         {
             if (_isDisposed) { throw new ObjectDisposedException("AESDecryptStream"); }
@@ -154,6 +244,18 @@ namespace Kalix.ApiCrypto.AES
             }
 
             _internalStream.Flush();
+        }
+
+        public override async Task FlushAsync(CancellationToken ct)
+        {
+            if (_isDisposed) { throw new ObjectDisposedException("AESDecryptStream"); }
+
+            if (_cryptoStream != null)
+            {
+                await _cryptoStream.FlushAsync(ct).ConfigureAwait(false);
+            }
+
+            await _internalStream.FlushAsync(ct).ConfigureAwait(false);
         }
 
         protected override void Dispose(bool disposing)
