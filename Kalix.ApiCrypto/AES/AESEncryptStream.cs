@@ -168,7 +168,7 @@ namespace Kalix.ApiCrypto.AES
         {
             if (disposing && !_isDisposed)
             {
-                if(!_isRead)
+                if(!_isRead && !_cryptoStream.HasFlushedFinalBlock)
                 {
                     _cryptoStream.FlushFinalBlock();
                 }
