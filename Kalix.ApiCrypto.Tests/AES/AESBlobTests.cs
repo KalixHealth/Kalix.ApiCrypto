@@ -53,14 +53,16 @@ namespace Kalix.ApiCrypto.Tests.AES
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException))]
         public void CannotDecrpytWithoutPrivateKey()
         {
-            var cert = RSACertificateBuilder.CreateNewCertificate(new RSACertificateBuilderOptions { FullSubjectName = "CN=Test", KeySize = 1024 });
-            var publicCert = new X509Certificate2(cert.Export(X509ContentType.Cert));
+            Assert.Throws(typeof(InvalidOperationException), () =>
+            {
+                var cert = RSACertificateBuilder.CreateNewCertificate(new RSACertificateBuilderOptions { FullSubjectName = "CN=Test", KeySize = 1024 });
+                var publicCert = new X509Certificate2(cert.Export(X509ContentType.Cert));
 
-            var blob = AESBlob.CreateBlob(AESKeySize.AES256, publicCert);
-            AESBlob.CreateEncryptor(blob, publicCert);
+                var blob = AESBlob.CreateBlob(AESKeySize.AES256, publicCert);
+                AESBlob.CreateEncryptor(blob, publicCert);
+            });
         }
     }
 }

@@ -60,14 +60,16 @@ namespace Kalix.ApiCrypto.Tests.EC
             }
 
             [Test]
-            [ExpectedException(typeof(InvalidOperationException))]
             public void NoPublicKeyThrowsError()
             {
-                var cert = ECCertificateBuilder.CreateNewSigningCertificate("Test");
-                var data = cert.Export(X509ContentType.Cert);
-                var publicCert = new X509Certificate2(data);
+                Assert.Throws(typeof(InvalidOperationException), () =>
+                {
+                    var cert = ECCertificateBuilder.CreateNewSigningCertificate("Test");
+                    var data = cert.Export(X509ContentType.Cert);
+                    var publicCert = new X509Certificate2(data);
 
-                ECDSACertificateParser.ParsePrivateCertificate(publicCert);
+                    ECDSACertificateParser.ParsePrivateCertificate(publicCert);
+                });
             }
         }
 

@@ -122,12 +122,26 @@ namespace Kalix.ApiCrypto.Tests.AES
         }
 
         [Test]
-        [ExpectedException(typeof(CryptographicException))]
         public void InvalidAESKeyCausesError()
         {
-            var encryptor = new AESEncryptor(new byte[] { 20, 19, 29, 28, 13 });
-            var data = Encoding.UTF8.GetBytes("Test message of awesome");
-            var encypted = Convert.ToBase64String(encryptor.Encrypt(data));
+            Assert.Throws(typeof(CryptographicException), () =>
+            {
+                var encryptor = new AESEncryptor(new byte[] { 20, 19, 29, 28, 13 });
+                var data = Encoding.UTF8.GetBytes("Test message of awesome");
+                var encypted = Convert.ToBase64String(encryptor.Encrypt(data));
+            });
+        }
+
+        [Test]
+        public void EmptyDataEncryptDecryptIsSuccessful()
+        {
+            var encryptor = CreateEncryptor(256);
+            var data = new byte[0];
+
+            var encypted = encryptor.Encrypt(data);
+            var decrypted = encryptor.Decrypt(encypted);
+
+            Assert.AreEqual(0, decrypted.Length);
         }
 
         private AESEncryptor CreateEncryptor(int keySizeInt)

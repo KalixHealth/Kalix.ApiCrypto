@@ -57,14 +57,16 @@ namespace Kalix.ApiCrypto.Tests.RSA
             }
 
             [Test]
-            [ExpectedException(typeof(InvalidOperationException))]
             public void NoPublicKeyThrowsError()
             {
-                var cert = RSACertificateBuilder.CreateNewCertificate("Test");
-                var data = cert.Export(X509ContentType.Cert);
-                var publicCert = new X509Certificate2(data);
+                Assert.Throws(typeof(InvalidOperationException), () =>
+                {
+                    var cert = RSACertificateBuilder.CreateNewCertificate("Test");
+                    var data = cert.Export(X509ContentType.Cert);
+                    var publicCert = new X509Certificate2(data);
 
-                RSACertificateParser.ParsePrivateCertificate(publicCert);
+                    RSACertificateParser.ParsePrivateCertificate(publicCert);
+                });
             }
         }
 
