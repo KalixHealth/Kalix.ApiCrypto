@@ -16,30 +16,31 @@ namespace Kalix.ApiCrypto.JWT
     /// </summary>
     public static class JsonWebToken
     {
-        /// <summary>
-        /// Create a web token signed by an ECDSA X509Certificate
-        /// </summary>
-        /// <param name="claims">JSON serialisable data to be signed</param>
-        /// <param name="signingCertificate">Certificate to use for signing, must include a private key</param>
-        /// <returns>JWT token</returns>
-        public static string EncodeUsingECDSA<T>(T claims, X509Certificate2 signingCertificate)
+	    /// <summary>
+	    /// Create a web token signed by an ECDSA X509Certificate
+	    /// </summary>
+	    /// <param name="claims">JSON serialisable data to be signed</param>
+	    /// <param name="signingCertificate">Certificate to use for signing, must include a private key</param>
+	    /// <param name="header">Header params</param>
+	    /// <returns>JWT token</returns>
+	    public static string EncodeUsingECDSA<T>(T claims, X509Certificate2 signingCertificate, IDictionary<string,object> header)
         {
             var signer = ECDSACertificateParser.ParsePrivateCertificate(signingCertificate);
-            return EncodeUsingECDSA(claims, signer);
+	        return EncodeUsingECDSA(claims, signer, header);
         }
 
-        /// <summary>
-        /// Create a web token signed by an ECDSA certificate, this is the parsed version for increased efficiancy
-        /// 
-        /// To create the signer <see cref="Kalix.ApiCrypto.EC.ECDSACertificateParser.ParsePrivateCertificate"/>
-        /// </summary>
-        /// <param name="claims">JSON serialisable data to be signed</param>
-        /// <param name="signingCertificate">Certificate data to use for signing</param>
-        /// <returns>JWT token</returns>
-        public static string EncodeUsingECDSA<T>(T claims, ECDsaCng signingCertificate)
+	    /// <summary>
+	    /// Create a web token signed by an ECDSA certificate, this is the parsed version for increased efficiancy
+	    /// 
+	    /// To create the signer <see cref="Kalix.ApiCrypto.EC.ECDSACertificateParser.ParsePrivateCertificate"/>
+	    /// </summary>
+	    /// <param name="claims">JSON serialisable data to be signed</param>
+	    /// <param name="signingCertificate">Certificate data to use for signing</param>
+	    /// <param name="header"></param>
+	    /// <returns>JWT token</returns>
+	    public static string EncodeUsingECDSA<T>(T claims, ECDsaCng signingCertificate, IDictionary<string,object> header)
         {
             var segments = new List<string>();
-            var header = new { typ = "JWT", alg = "ES" + signingCertificate.KeySize };
 
             byte[] headerBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(header));
             byte[] payloadBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(claims));
@@ -61,10 +62,9 @@ namespace Kalix.ApiCrypto.JWT
         /// </summary>
         /// <param name="claims">JSON serialisable data</param>
         /// <returns>JWT token with only 2 parts</returns>
-        public static string Encode<T>(T claims)
+        public static string Encode<T>(T claims, IDictionary<string,object> header)
         {
             var segments = new List<string>();
-            var header = new { typ = "JWT" };
 
             byte[] headerBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(header));
             byte[] payloadBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(claims));

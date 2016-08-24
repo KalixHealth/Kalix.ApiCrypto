@@ -1,4 +1,5 @@
-﻿using Kalix.ApiCrypto.EC;
+﻿using System.Collections.Generic;
+using Kalix.ApiCrypto.EC;
 using Kalix.ApiCrypto.JWT;
 using NUnit.Framework;
 
@@ -10,21 +11,32 @@ namespace Kalix.ApiCrypto.Tests.JWT
         [Test]
         public void HeaderAndPayloadParsesCorrectly()
         {
-            var cert = ECCertificateBuilder.CreateNewSigningCertificate("Test");
-            var token = JsonWebToken.EncodeUsingECDSA(new { id = 1, org = 1 }, cert);
+			var options = new ECCertificateBuilderOptions
+			{
+				ECCurve = ECNamedCurves.P256,
+				FullSubjectName = "CN=Test"
+			};
+			var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
+	        var token = JsonWebToken.EncodeUsingECDSA(new {id = 1, org = 1}, cert,
+		        new Dictionary<string, object> {{"alg", "ES256"}});
             var bits = token.Split('.');
 
             Assert.AreEqual(3, bits.Length);
-            Assert.AreEqual("eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzUyMSJ9", bits[0]);  // HEADER
+            Assert.AreEqual("eyJhbGciOiJFUzI1NiJ9", bits[0]);  // HEADER
             Assert.AreEqual("eyJpZCI6MSwib3JnIjoxfQ", bits[1]); // DATA
         }
 
         [Test]
         public void ParseBackAndForthWorks()
         {
-            var cert = ECCertificateBuilder.CreateNewSigningCertificate("Test");
+			var options = new ECCertificateBuilderOptions
+			{
+				ECCurve = ECNamedCurves.P256,
+				FullSubjectName = "CN=Test"
+			};
+			var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
 
-            var token = JsonWebToken.EncodeUsingECDSA(new { id = 1, org = 2 }, cert);
+			var token = JsonWebToken.EncodeUsingECDSA(new { id = 1, org = 2 }, cert, new Dictionary<string, object> { { "alg", "ES256" } });
             dynamic result = JsonWebToken.DecodeUsingECDSA<object>(token, cert);
 
             Assert.AreEqual(1, (int)result.id);
@@ -34,10 +46,20 @@ namespace Kalix.ApiCrypto.Tests.JWT
         [Test]
         public void WrongCertificateThrowsError()
         {
-            var cert = ECCertificateBuilder.CreateNewSigningCertificate("Test");
-            var token = JsonWebToken.EncodeUsingECDSA(new { id = 1, org = 2 }, cert);
+			var options = new ECCertificateBuilderOptions
+			{
+				ECCurve = ECNamedCurves.P256,
+				FullSubjectName = "CN=Test"
+			};
+			var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
+			var token = JsonWebToken.EncodeUsingECDSA(new { id = 1, org = 2 }, cert, new Dictionary<string, object> { { "alg", "ES256" } });
 
-            cert = ECCertificateBuilder.CreateNewSigningCertificate("Test");
+			options = new ECCertificateBuilderOptions
+			{
+				ECCurve = ECNamedCurves.P256,
+				FullSubjectName = "CN=Test"
+			};
+			cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
 
             try
             {
@@ -55,8 +77,15 @@ namespace Kalix.ApiCrypto.Tests.JWT
         [Test]
         public void ECDSAKeySizeDoesNotMatchThrowsError()
         {
-            var cert = ECCertificateBuilder.CreateNewSigningCertificate("Test");
-            var token = JsonWebToken.EncodeUsingECDSA(new { id = 1, org = 2 }, cert);
+	        var options = new ECCertificateBuilderOptions
+	        {
+		        FullSubjectName = "CN=Test",
+		        ECCurve = ECNamedCurves.P521,
+		        HashingMethod = HashingMethods.Sha256,
+		        ECKeyName = "ECDSA_Test" 
+	        };
+			var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
+			var token = JsonWebToken.EncodeUsingECDSA(new { id = 1, org = 2 }, cert, new Dictionary<string, object> { { "alg", "ES521" } });
 
             cert = ECCertificateBuilder.CreateNewSigningCertificate(new ECCertificateBuilderOptions { ECCurve = ECNamedCurves.P256, FullSubjectName = "CN=Test" });
 
@@ -76,8 +105,14 @@ namespace Kalix.ApiCrypto.Tests.JWT
         [Test]
         public void UnknownJWTAlgorithmThrowsError()
         {
-            var cert = ECCertificateBuilder.CreateNewSigningCertificate("Test");
-            var token = JsonWebToken.EncodeUsingECDSA(new { id = 1, org = 2 }, cert);
+			var options = new ECCertificateBuilderOptions
+			{
+				ECCurve = ECNamedCurves.P256,
+
+				FullSubjectName = "CN=Test"
+			};
+			var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
+			var token = JsonWebToken.EncodeUsingECDSA(new { id = 1, org = 2 }, cert, new Dictionary<string, object> { { "alg", "ES256" } });
             var split = token.Split('.');
             split[0] = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSU0EifQ";  // switch header
             token = string.Join(".", split);
