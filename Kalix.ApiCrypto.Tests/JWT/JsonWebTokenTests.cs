@@ -18,16 +18,12 @@ namespace Kalix.ApiCrypto.Tests.JWT
 				FullSubjectName = "CN=Test"
 			};
 			var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
-	        string headerJson;
-	        string payloadJson;
 
 	        var token = JsonWebToken.EncodeUsingECDSA(
 		        new {id = 1, org = 1},
 		        cert,
 		        new Dictionary<string, object> {{"alg", "ES256"}},
-		        new JsonSerializerSettings(),
-		        out headerJson,
-		        out payloadJson);
+		        new JsonSerializerSettings());
 
             var bits = token.Split('.');
 
@@ -46,10 +42,7 @@ namespace Kalix.ApiCrypto.Tests.JWT
 			};
 			var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
 
-	        string headerJson;
-	        string payloadJson;
-
-	        var token = JsonWebToken.EncodeUsingECDSA(new {id = 1, org = 2}, cert, out headerJson, out payloadJson);
+	        var token = JsonWebToken.EncodeUsingECDSA(new {id = 1, org = 2}, cert);
 
 	        string headerJsonDecoded;
 	        string payloadJsonDecoded;
@@ -59,12 +52,11 @@ namespace Kalix.ApiCrypto.Tests.JWT
 
             Assert.AreEqual(1, (int)result.id);
             Assert.AreEqual(2, (int)result.org);
-			Assert.IsFalse(string.IsNullOrWhiteSpace(headerJson));
+			
 			Assert.IsFalse(string.IsNullOrWhiteSpace(headerJsonDecoded));
-			Assert.IsFalse(string.IsNullOrWhiteSpace(payloadJson));
+			
 			Assert.IsFalse(string.IsNullOrWhiteSpace(payloadJsonDecoded));
-	        Assert.IsTrue(string.Equals(headerJson, headerJsonDecoded));
-	        Assert.IsTrue(string.Equals(payloadJson, payloadJsonDecoded));
+	        
 
         }
 
@@ -78,10 +70,7 @@ namespace Kalix.ApiCrypto.Tests.JWT
 			};
 			var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
 
-			string headerJson;
-			string payloadJson;
-
-			var token = JsonWebToken.EncodeUsingECDSA(new { id = 1, org = 2 }, cert, out headerJson, out payloadJson);
+	        var token = JsonWebToken.EncodeUsingECDSA(new { id = 1, org = 2 }, cert);
 
 			options = new ECCertificateBuilderOptions
 			{
@@ -92,6 +81,8 @@ namespace Kalix.ApiCrypto.Tests.JWT
 
             try
             {
+	            string headerJson;
+	            string payloadJson;
 	            JsonWebToken.DecodeUsingECDSA<object>(token, cert, out headerJson, out payloadJson);
             }
             catch (SignatureVerificationException ex)
@@ -114,15 +105,15 @@ namespace Kalix.ApiCrypto.Tests.JWT
 		        ECKeyName = "ECDSA_Test" 
 	        };
 			var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
-			string headerJson;
-			string payloadJson;
 
-			var token = JsonWebToken.EncodeUsingECDSA(new { id = 1, org = 2 }, cert, out headerJson, out payloadJson);
+	        var token = JsonWebToken.EncodeUsingECDSA(new { id = 1, org = 2 }, cert);
 
             cert = ECCertificateBuilder.CreateNewSigningCertificate(new ECCertificateBuilderOptions { ECCurve = ECNamedCurves.P256, FullSubjectName = "CN=Test" });
 
             try
             {
+	            string headerJson;
+	            string payloadJson;
 	            JsonWebToken.DecodeUsingECDSA<object>(token, cert, out headerJson, out payloadJson);
             }
             catch (SignatureVerificationException ex)
@@ -144,16 +135,16 @@ namespace Kalix.ApiCrypto.Tests.JWT
 				FullSubjectName = "CN=Test"
 			};
 			var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
-			string headerJson;
-			string payloadJson;
 
-			var token = JsonWebToken.EncodeUsingECDSA(new { id = 1, org = 2 }, cert, out headerJson, out payloadJson);
+	        var token = JsonWebToken.EncodeUsingECDSA(new { id = 1, org = 2 }, cert);
             var split = token.Split('.');
             split[0] = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSU0EifQ";  // switch header
             token = string.Join(".", split);
 
             try
             {
+	            string headerJson;
+	            string payloadJson;
 	            JsonWebToken.DecodeUsingECDSA<object>(token, cert, out headerJson, out payloadJson);
             }
             catch (SignatureVerificationException ex)
