@@ -19,11 +19,13 @@ namespace Kalix.ApiCrypto.Tests.JWT
 			};
 			var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
 
+	        string headerJson;
 	        var token = JsonWebToken.EncodeUsingECDSA(
 		        new {id = 1, org = 1},
 		        cert,
 		        new Dictionary<string, object> {{"alg", "ES256"}},
-		        new JsonSerializerSettings());
+		        new JsonSerializerSettings(),
+		        out headerJson);
 
             var bits = token.Split('.');
 
@@ -42,7 +44,8 @@ namespace Kalix.ApiCrypto.Tests.JWT
 			};
 			var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
 
-	        var token = JsonWebToken.EncodeUsingECDSA(new {id = 1, org = 2}, cert);
+	        string headerJson;
+	        var token = JsonWebToken.EncodeUsingECDSA(new {id = 1, org = 2}, cert, out headerJson);
 
 	        string headerJsonDecoded;
 	        string payloadJsonDecoded;
@@ -54,7 +57,7 @@ namespace Kalix.ApiCrypto.Tests.JWT
             Assert.AreEqual(2, (int)result.org);
 			
 			Assert.IsFalse(string.IsNullOrWhiteSpace(headerJsonDecoded));
-			
+	        Assert.IsTrue(string.Equals(headerJson, headerJsonDecoded));
 			Assert.IsFalse(string.IsNullOrWhiteSpace(payloadJsonDecoded));
 	        
 
@@ -69,8 +72,8 @@ namespace Kalix.ApiCrypto.Tests.JWT
 				FullSubjectName = "CN=Test"
 			};
 			var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
-
-	        var token = JsonWebToken.EncodeUsingECDSA(new { id = 1, org = 2 }, cert);
+			string headerJson;
+	        var token = JsonWebToken.EncodeUsingECDSA(new {id = 1, org = 2}, cert, out headerJson);
 
 			options = new ECCertificateBuilderOptions
 			{
@@ -81,7 +84,6 @@ namespace Kalix.ApiCrypto.Tests.JWT
 
             try
             {
-	            string headerJson;
 	            string payloadJson;
 	            JsonWebToken.DecodeUsingECDSA<object>(token, cert, out headerJson, out payloadJson);
             }
@@ -105,14 +107,13 @@ namespace Kalix.ApiCrypto.Tests.JWT
 		        ECKeyName = "ECDSA_Test" 
 	        };
 			var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
-
-	        var token = JsonWebToken.EncodeUsingECDSA(new { id = 1, org = 2 }, cert);
+			string headerJson;
+	        var token = JsonWebToken.EncodeUsingECDSA(new {id = 1, org = 2}, cert, out headerJson);
 
             cert = ECCertificateBuilder.CreateNewSigningCertificate(new ECCertificateBuilderOptions { ECCurve = ECNamedCurves.P256, FullSubjectName = "CN=Test" });
 
             try
             {
-	            string headerJson;
 	            string payloadJson;
 	            JsonWebToken.DecodeUsingECDSA<object>(token, cert, out headerJson, out payloadJson);
             }
@@ -135,15 +136,14 @@ namespace Kalix.ApiCrypto.Tests.JWT
 				FullSubjectName = "CN=Test"
 			};
 			var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
-
-	        var token = JsonWebToken.EncodeUsingECDSA(new { id = 1, org = 2 }, cert);
+			string headerJson;
+	        var token = JsonWebToken.EncodeUsingECDSA(new {id = 1, org = 2}, cert, out headerJson);
             var split = token.Split('.');
             split[0] = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSU0EifQ";  // switch header
             token = string.Join(".", split);
 
             try
             {
-	            string headerJson;
 	            string payloadJson;
 	            JsonWebToken.DecodeUsingECDSA<object>(token, cert, out headerJson, out payloadJson);
             }

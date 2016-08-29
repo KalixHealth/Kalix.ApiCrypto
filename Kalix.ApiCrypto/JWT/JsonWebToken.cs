@@ -22,9 +22,9 @@ namespace Kalix.ApiCrypto.JWT
 		/// <param name="claims">JSON serialisable data to be signed</param>
 		/// <param name="signingCertificate">Certificate to use for signing, must include a private key</param>
 		/// <returns>JWT token</returns>
-		public static string EncodeUsingECDSA<T>(T claims, X509Certificate2 signingCertificate)
+		public static string EncodeUsingECDSA<T>(T claims, X509Certificate2 signingCertificate, out string headerJson)
 		{
-			return EncodeUsingECDSA(claims, signingCertificate, null, null);
+			return EncodeUsingECDSA(claims, signingCertificate, null, null, out headerJson);
 		}
 
 		/// <summary>
@@ -37,10 +37,10 @@ namespace Kalix.ApiCrypto.JWT
 		/// <param name="headerJson">[Output] the header json</param>
 		/// <param name="payloadJson">[Output] the payload json</param>
 		/// <returns>JWT token</returns>
-		public static string EncodeUsingECDSA<T>(T claims,X509Certificate2 signingCertificate,IDictionary<string, object> extraHeaderClaims,JsonSerializerSettings payloadSerializerSettings)
+		public static string EncodeUsingECDSA<T>(T claims,X509Certificate2 signingCertificate,IDictionary<string, object> extraHeaderClaims,JsonSerializerSettings payloadSerializerSettings, out string headerJson)
 		{
 			var signer = ECDSACertificateParser.ParsePrivateCertificate(signingCertificate);
-			return EncodeUsingECDSA(claims, signer, extraHeaderClaims, payloadSerializerSettings);
+			return EncodeUsingECDSA(claims, signer, extraHeaderClaims, payloadSerializerSettings, out headerJson);
 		}
 
 		/// <summary>
@@ -55,9 +55,9 @@ namespace Kalix.ApiCrypto.JWT
 		/// <param name="headerJson">[Output] the header json</param>
 		/// <param name="payloadJson">[Output] the payload json</param>
 		/// <returns>JWT token</returns>
-		public static string EncodeUsingECDSA<T>(T claims,ECDsaCng signingCertificate)
+		public static string EncodeUsingECDSA<T>(T claims,ECDsaCng signingCertificate, out string headerJson)
 		{
-			return EncodeUsingECDSA(claims, signingCertificate, null, null);
+			return EncodeUsingECDSA(claims, signingCertificate, null, null, out headerJson);
 		}
 
 		/// <summary>
@@ -72,7 +72,7 @@ namespace Kalix.ApiCrypto.JWT
 		/// <param name="headerJson">[Output] the header json</param>
 		/// <param name="payloadJson">[Output] the payload json</param>
 		/// <returns>JWT token</returns>
-		public static string EncodeUsingECDSA<T>(T claims,ECDsaCng signingCertificate,IDictionary<string, object> extraHeaderClaims,JsonSerializerSettings payloadSerializerSettings)
+		public static string EncodeUsingECDSA<T>(T claims,ECDsaCng signingCertificate,IDictionary<string, object> extraHeaderClaims,JsonSerializerSettings payloadSerializerSettings, out string headerJson)
 		{
 			if (claims == null)
 				throw new ArgumentNullException("claims");
@@ -87,7 +87,7 @@ namespace Kalix.ApiCrypto.JWT
 
 			var segments = new List<string>(3);
 
-			var headerJson = JsonConvert.SerializeObject(extraHeaderClaims, payloadSerializerSettings);
+			headerJson = JsonConvert.SerializeObject(extraHeaderClaims, payloadSerializerSettings);
 			var headerBytes = Encoding.UTF8.GetBytes(headerJson);
 			var payloadJson = JsonConvert.SerializeObject(claims, payloadSerializerSettings);
 			var payloadBytes = Encoding.UTF8.GetBytes(payloadJson);
