@@ -117,7 +117,7 @@ namespace Kalix.ApiCrypto.Tests.EC
                 objCngKey.Delete();
             }
 
-            var reloaded = new X509Certificate2(data, "password", X509KeyStorageFlags.MachineKeySet);
+            var reloaded = new X509Certificate2(data, "password");
             ECDSACertificateParser.ParsePrivateCertificate(reloaded);
         }
     }
