@@ -56,7 +56,12 @@
     <Compile Include="EC\ECCertificateBuilderOptions.cs" />
     <Compile Include="EC\ECDSACertificateParser.cs" />
     <Compile Include="EC\ECNamedCurves.cs" />
+    <Compile Include="JWT\Builder\JwtDecodeOptions.cs" />
+    <Compile Include="JWT\Builder\JwtDecodeResult.cs" />
+    <Compile Include="JWT\Builder\JwtEncodeOptions.cs" />
+    <Compile Include="JWT\Builder\JwtEncodeResult.cs" />
     <Compile Include="JWT\JsonWebToken.cs" />
+    <Compile Include="JWT\JwtBuilder.cs" />
     <Compile Include="JWT\SignatureVerificationException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="HashingMethods.cs" />
@@ -77,8 +82,6 @@
 mkdir "$(ProjectDir)package\lib\net45"
 Xcopy.exe /Y "$(TargetDir)Kalix.ApiCrypto.dll" "$(ProjectDir)package\lib\net45"
 Xcopy.exe /Y "$(TargetDir)Kalix.ApiCrypto.xml" "$(ProjectDir)package\lib\net45"
-Xcopy.exe /Y "$(SolutionDir)ExternalDeps\Security.Cryptography.dll" "$(ProjectDir)package\lib\net45"
-Xcopy.exe /Y "$(SolutionDir)ExternalDeps\Security.Cryptography.xml" "$(ProjectDir)package\lib\net45"
 Xcopy.exe /Y "$(ProjectDir)Kalix.ApiCrypto.nuspec" "$(ProjectDir)package"
 cd "$(ProjectDir)package"
 "$(SolutionDir)Nuget.exe" pack Kalix.ApiCrypto.nuspec

@@ -89,7 +89,7 @@ namespace Kalix.ApiCrypto.Tests.JWT
             }
             catch (SignatureVerificationException ex)
             {
-                Assert.AreEqual("Invalid signature.", ex.Message);
+                Assert.AreEqual("Token does not match signature", ex.Message);
                 return;
             }
 
@@ -119,7 +119,7 @@ namespace Kalix.ApiCrypto.Tests.JWT
             }
             catch (SignatureVerificationException ex)
             {
-                Assert.AreEqual("Key size does not match.", ex.Message);
+                Assert.AreEqual("Key size does not match: ES256 vs ES521", ex.Message);
                 return;
             }
 
@@ -149,7 +149,7 @@ namespace Kalix.ApiCrypto.Tests.JWT
             }
             catch (SignatureVerificationException ex)
             {
-                Assert.AreEqual("Unsupported signing algorithm.", ex.Message);
+                Assert.AreEqual("Unsupported signing algorithm: RSA", ex.Message);
                 return;
             }
 
