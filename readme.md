@@ -90,10 +90,10 @@ class:
 
 	// Create an access token that is signed (on authentication server)
 	var data = new { sub = "custId", aud = "scope1,scope2", exp = 1300819380 };
-	var token = JsonWebToken.EncodeUsingECDSA(data, cert);
+	var token = JwtBuilder.Encode(data).SignUsingECDSA(cert).Build().JsonWebToken;
 
 	// On resource server we can verify and use this data
-	dynamic tokenData = JsonWebToken.DecodeUsingECDSA<object>(token, cert);
+	dynamic tokenData = JwtBuilder.Decode<object>(token).VerifyUsingECDSA(cert).Build().Claims;
 	var customerId = (string)tokenData.sub;
 	var exp = (int)tokenData.exp;
 

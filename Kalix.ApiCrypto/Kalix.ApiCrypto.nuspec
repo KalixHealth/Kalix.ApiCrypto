@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Kalix.ApiCrypto</id>
-    <version>2.0.3</version>
+    <version>3.0.0</version>
     <authors>Felix Jorkowski (jorkowski.com)</authors>
     <owners>Kalix (www.kalixhealth.com)</owners>
     <licenseUrl>http://www.ohloh.net/licenses/mslpl</licenseUrl>
@@ -22,12 +22,14 @@
       Library to help secure web endpoints and data at rest. Uses ECDSA (P521, P384, P256) to create tokens using JWT. Encrypt/Decrypt data using AES, assuming AES key is encrypted using RSA certificate.
     </summary>
     <releaseNotes>
-      Updated to use latest newtonsoft.json, more tests
+      Security.Cryptography is available as a nuget package.
+      Added JwtBuilder which is a fluent version of JsonWebToken - JsonWebToken is now Obsolete
     </releaseNotes>
-    <copyright>Copyright 2014</copyright>
+    <copyright>Copyright 2017</copyright>
     <tags>Cng Crypto Api JWT ECDSA RSA AES</tags>
     <dependencies>
-      <dependency id="Newtonsoft.Json" version="8.0.3" />
+      <dependency id="Newtonsoft.Json" version="6.0.2" />
+      <dependency id="Security.Cryptography" version="1.7.2" />
     </dependencies>
   </metadata>
 </package>

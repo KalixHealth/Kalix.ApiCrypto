@@ -23,8 +23,7 @@ namespace Kalix.ApiCrypto.AES
 
         private int _ivWritten;
         private byte[] _iv;
-
-        private bool _hasWrittenData;
+        
         private bool _isDisposed;
 
         public AESDecryptStream(byte[] aesKey, Stream data, bool readMode)
