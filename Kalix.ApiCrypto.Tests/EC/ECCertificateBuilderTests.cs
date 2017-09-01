@@ -51,22 +51,6 @@ namespace Kalix.ApiCrypto.Tests.EC
         }
 
         [Test]
-        public void CreateWithSha1Hash()
-        {
-            var options = new ECCertificateBuilderOptions
-            {
-                FullSubjectName = "CN=Test",
-                HashingMethod = HashingMethods.Sha1
-            };
-
-            var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
-
-            Assert.AreEqual("CN=Test", cert.Subject);
-            Assert.AreEqual("sha1ECDSA", cert.SignatureAlgorithm.FriendlyName);
-            Assert.IsTrue(cert.HasPrivateKey);
-        }
-
-        [Test]
         public void CreateWithSha384Hash()
         {
             var options = new ECCertificateBuilderOptions
@@ -104,18 +88,11 @@ namespace Kalix.ApiCrypto.Tests.EC
             var options = new ECCertificateBuilderOptions
             {
                 FullSubjectName = "CN=Test",
-                ECKeyName = "KeyTestTemp",
                 HashingMethod = HashingMethods.Sha512
             };
 
             var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
             var data = cert.Export(X509ContentType.Pkcs12, "password");
-
-            if (CngKey.Exists("KeyTestTemp"))
-            {
-                var objCngKey = CngKey.Open("KeyTestTemp");
-                objCngKey.Delete();
-            }
 
             var reloaded = new X509Certificate2(data, "password");
             ECDSACertificateParser.ParsePrivateCertificate(reloaded);

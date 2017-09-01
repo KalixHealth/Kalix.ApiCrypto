@@ -3,9 +3,7 @@
 Useful collection of classes to help with security of api endpoints
 
 Features:
-- Create ECDSA (P521, P384, P256) key pairs (and export to pfx and cer)
 - Create Json Web Tokens signed with ECDSA (P521, P384, P256) certificate
-- Create Cng based RSA key pairs (and export to pfx and cer)
 - Create secure AES keys using RSA certificates
 - Encrypt/Decrypt files using AES with best practise in mind
 
@@ -22,17 +20,15 @@ will use to encrypt an AES key blob. The blob can then be stored on azure blob s
 as an example. When your server starts up it will use the RSA certificate to decrypt this blob.
 Once decrypted the AES symmetric key can be used to encrypt/decrypt all your records.
 
-First step is to create the RSA certificate and the encrypted AES shared key:
+First step is to use a RSA certificate and create the encrypted AES shared key:
 
-	// Creates an RSA key with key size of 4096 by default
-    var cert = RSACertificateBuilder.CreateNewCertificate("SubjectName");
+    // Get the certificate from the store
+    var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+    store.Open(OpenFlags.ReadOnly);
+    var cert = store.Certificates.Find(X509FindType.FindBySubjectName, "SubjectName", false)[0];
 
-	// Export public/private keypair
-    var privateData = cert.Export(X509ContentType.Pkcs12, "password");
-    File.WriteAllBytes(Path.GetFullPath("private.pfx"), privateData);
-
-	// Create a blob that can be saved in blob storage or S3 etc
-	var blobData = AESBlob.CreateBlob(AESKeySize.AES256, cert);
+    // Create a blob that can be saved in blob storage or S3 etc
+    var blobData = AESBlob.CreateBlob(AESKeySize.AES256, cert);
 
 You will have to install the public/private key pair on all servers that need to encrypt/decrypt
 data. It will only be used to extract the AES key from the blob:
@@ -42,8 +38,8 @@ data. It will only be used to extract the AES key from the blob:
     store.Open(OpenFlags.ReadOnly);
     var cert = store.Certificates.Find(X509FindType.FindBySubjectName, "SubjectName", false)[0];
 
-	// Create the encryptor
-	var encryptor = AESBlob.CreateEncryptor(blobData, cert);
+    // Create the encryptor
+    var encryptor = AESBlob.CreateEncryptor(blobData, cert);
 
 The encryptor has an `Encypt` and `Decrypt` method that is (read) stream based. This makes it
 easy to use for small or large files. It also follows best practice by creating a new IV per 
@@ -67,17 +63,16 @@ to seperate the managing of the super secret private key and our codebase.
 
 The first step is to create the certificates we will need on each server. 
 
-    var cert = ECCertificateBuilder.CreateNewSigningCertificate("SubjectName");
+    // Get the certificate from the store
+    var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+    store.Open(OpenFlags.ReadOnly);
+    var cert = store.Certificates.Find(X509FindType.FindBySubjectName, "SubjectName", false)[0];
 
-	// Export public/private keypair
-    var privateData = cert.Export(X509ContentType.Pkcs12, "password");
-    File.WriteAllBytes(Path.GetFullPath("private.pfx"), privateData);
-
-	// Export public key
+    // Export public key
     var publicData = cert.Export(X509ContentType.Cert);
     File.WriteAllBytes(Path.GetFullPath("public.cer"), publicData);
 
-The pfx should be installed on the machine that will create the access tokens. The cer
+The full certificate should be installed on the machine that will create the access tokens. The cer
 should be installed on the machine that needs to verify them.
 
 Now when you need to create an access token in your oauth flow you can use the JsonWebToken
@@ -88,24 +83,21 @@ class:
     store.Open(OpenFlags.ReadOnly);
     var cert = store.Certificates.Find(X509FindType.FindBySubjectName, "SubjectName", false)[0];
 
-	// Create an access token that is signed (on authentication server)
-	var data = new { sub = "custId", aud = "scope1,scope2", exp = 1300819380 };
-	var token = JwtBuilder.Encode(data).SignUsingECDSA(cert).Build().JsonWebToken;
+    // Create an access token that is signed (on authentication server)
+    var data = new { sub = "custId", aud = "scope1,scope2", exp = 1300819380 };
+    var token = JwtBuilder.Encode(data).SignUsingECDSA(cert).Build().JsonWebToken;
 
-	// On resource server we can verify and use this data
-	dynamic tokenData = JwtBuilder.Decode<object>(token).VerifyUsingECDSA(cert).Build().Claims;
-	var customerId = (string)tokenData.sub;
-	var exp = (int)tokenData.exp;
+    // On resource server we can verify and use this data
+    dynamic tokenData = JwtBuilder.Decode<object>(token).VerifyUsingECDSA(cert).Build().Claims;
+    var customerId = (string)tokenData.sub;
+    var exp = (int)tokenData.exp;
 
-	// Make sure to test expiry date, but apart from that we know customerId
-	// can be trusted and we can release information for that customer
+    // Make sure to test expiry date, but apart from that we know customerId
+    // can be trusted and we can release information for that customer
 
 Check out [Claims](http://self-issued.info/docs/draft-ietf-oauth-json-web-token.html#Claims) on the
 JWT reference docs for claims you might use in your access token.
 
 ## Licence
 
-This project relies heavily on the "CLR-Security" project which uses the Microsoft Limited Permissive License (Ms-LPL).
-This limits this library to be compatible so we have also chosen to use the Microsoft Limited Permissive License (Ms-LPL).
-
-See the full licence in LICENSE.txt
+MIT - https://opensource.org/licenses/mit

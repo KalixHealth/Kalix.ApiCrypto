@@ -2,6 +2,7 @@
 using System;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using Rsa = System.Security.Cryptography.RSA;
 
 namespace Kalix.ApiCrypto.AES
 {
@@ -29,8 +30,9 @@ namespace Kalix.ApiCrypto.AES
         /// </summary>
         /// <param name="keySize">Required AES key size</param>
         /// <param name="rsaCert">RSA parsed public certificate used to sign</param>
+        /// <param name="rsaPadding">Padding to use during RSA encryption, default is <see cref="RSAEncryptionPadding.Pkcs1"/></param>
         /// <returns>data that can be stored</returns>
-        public static byte[] CreateBlob(AESKeySize keySize, RSAServiceProvider rsaCert)
+        public static byte[] CreateBlob(AESKeySize keySize, Rsa rsaCert, RSAEncryptionPadding rsaPadding = null)
         {
             int intKeySize;
             switch (keySize)
@@ -53,7 +55,7 @@ namespace Kalix.ApiCrypto.AES
             aesProvider.GenerateKey();
 
             // Encrypt using the RSA cert and return
-            return rsaCert.EncryptValue(aesProvider.Key);
+            return rsaCert.Encrypt(aesProvider.Key, rsaPadding ?? RSAEncryptionPadding.Pkcs1);
         }
 
         /// <summary>
@@ -73,12 +75,12 @@ namespace Kalix.ApiCrypto.AES
         /// 
         /// To create the parsed cert <see cref="Kalix.ApiCrypto.RSA.RSACertificateParser.ParsePrivateCertificate"/>
         /// </summary>
-        /// <param name="blob">AES data created from the <see cref="CreateBlob(AESKeySize, X509Certificate2)"/> or <see cref="CreateBlob(AESKeySize, RSAServiceProvider)"/> method</param>
+        /// <param name="blob">AES data created from the <see cref="CreateBlob(AESKeySize, X509Certificate2)"/> or <see cref="CreateBlob(AESKeySize, Rsa)"/> method</param>
         /// <param name="rsaCert">Parsed RSA certificate to decrypt data, must have a private key</param>
         /// <returns>Encryptor that can be used to encrypt/decrypt any number of documents</returns>
-        public static AESEncryptor CreateEncryptor(byte[] blob, RSAServiceProvider rsaCert)
+        public static AESEncryptor CreateEncryptor(byte[] blob, Rsa rsaCert, RSAEncryptionPadding rsaPadding = null)
         {
-            var key = rsaCert.DecryptValue(blob);
+            var key = rsaCert.Decrypt(blob, rsaPadding ?? RSAEncryptionPadding.Pkcs1);
             return new AESEncryptor(key);
         }
     }

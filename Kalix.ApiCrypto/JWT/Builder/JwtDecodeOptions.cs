@@ -50,7 +50,7 @@ namespace Kalix.ApiCrypto.JWT.Builder
         /// </summary>
         /// <param name="verificationCertificate">Public key certificate to verify the token with</param>
         /// <returns>Fluent interface for additional options</returns>
-        public JwtDecodeOptions<T> VerifyUsingECDSA(ECDsaCng verificationCertificate)
+        public JwtDecodeOptions<T> VerifyUsingECDSA(ECDsa verificationCertificate)
         {
             var opts = _options.Clone();
             opts.Certificate = verificationCertificate;
@@ -66,6 +66,18 @@ namespace Kalix.ApiCrypto.JWT.Builder
         {
             var opts = _options.Clone();
             opts.JsonSerializerSettings = settings;
+            return new JwtDecodeOptions<T>(_token, opts);
+        }
+
+        /// <summary>
+        /// Specify the hashing algorithm used during verification of the signature
+        /// </summary>
+        /// <param name="method">The signing algorithm to use</param>
+        /// <returns>Fluent interface for additional options</returns>
+        public JwtDecodeOptions<T> UseSigningHash(HashingMethods method)
+        {
+            var opts = _options.Clone();
+            opts.SigningHash = method;
             return new JwtDecodeOptions<T>(_token, opts);
         }
 
@@ -91,7 +103,7 @@ namespace Kalix.ApiCrypto.JWT.Builder
 
             if (isSigned)
             {
-                verificationResult = Verify(headers, _options.Certificate, headerPart, payloadPart, parts[2]);
+                verificationResult = Verify(headers, _options.Certificate, headerPart, payloadPart, parts[2], _options.SigningHash);
                 isVerified = verificationResult == null;
             }
             else
@@ -120,7 +132,7 @@ namespace Kalix.ApiCrypto.JWT.Builder
             };
         }
 
-        private string Verify(IDictionary<string, object> headers, ECDsaCng cert, string headerPart, string payloadPart, string signature)
+        private string Verify(IDictionary<string, object> headers, ECDsa cert, string headerPart, string payloadPart, string signature, HashingMethods hashMethod)
         {
             if (cert == null)
             {
@@ -146,7 +158,7 @@ namespace Kalix.ApiCrypto.JWT.Builder
             var compare = Encoding.UTF8.GetBytes(string.Concat(headerPart, ".", payloadPart));
             var signatureBytes = Base64UrlDecode(signature);
 
-            if (!cert.VerifyData(compare, signatureBytes))
+            if (!cert.VerifyData(compare, signatureBytes, hashMethod.ToHashingName()))
             {
                 return "Token does not match signature";
             }
@@ -181,7 +193,13 @@ namespace Kalix.ApiCrypto.JWT.Builder
         private class JwtInternalOptions
         {
             public JsonSerializerSettings JsonSerializerSettings { get; set; }
-            public ECDsaCng Certificate { get; set; }
+            public ECDsa Certificate { get; set; }
+            public HashingMethods SigningHash { get; set; }
+
+            public JwtInternalOptions()
+            {
+                SigningHash = HashingMethods.Sha256;
+            }
 
             public JwtInternalOptions Clone()
             {

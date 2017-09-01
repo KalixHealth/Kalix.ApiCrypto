@@ -1,16 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kalix.ApiCrypto", "Kalix.ApiCrypto\Kalix.ApiCrypto.csproj", "{B3D329A2-22AB-45F6-A8A2-A50409821853}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kalix.ApiCrypto.Tests", "Kalix.ApiCrypto.Tests\Kalix.ApiCrypto.Tests.csproj", "{FFE5ADB2-6944-4190-BC46-F03DEAFB6193}"
-EndProject
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.12
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{812FADFF-27D9-47F9-90A9-5C01829DE3D7}"
 	ProjectSection(SolutionItems) = preProject
-		LICENSE.txt = LICENSE.txt
-		NuGet.exe = NuGet.exe
 		readme.md = readme.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kalix.ApiCrypto", "Kalix.ApiCrypto\Kalix.ApiCrypto.csproj", "{57791A71-D4D0-4DFD-BBD4-DAFEFD5426EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kalix.ApiCrypto.Tests", "Kalix.ApiCrypto.Tests\Kalix.ApiCrypto.Tests.csproj", "{1EB4A9A3-C2E9-4A42-8ECB-53D7E607893A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,16 +18,19 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B3D329A2-22AB-45F6-A8A2-A50409821853}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B3D329A2-22AB-45F6-A8A2-A50409821853}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B3D329A2-22AB-45F6-A8A2-A50409821853}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B3D329A2-22AB-45F6-A8A2-A50409821853}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FFE5ADB2-6944-4190-BC46-F03DEAFB6193}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FFE5ADB2-6944-4190-BC46-F03DEAFB6193}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FFE5ADB2-6944-4190-BC46-F03DEAFB6193}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FFE5ADB2-6944-4190-BC46-F03DEAFB6193}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57791A71-D4D0-4DFD-BBD4-DAFEFD5426EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57791A71-D4D0-4DFD-BBD4-DAFEFD5426EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57791A71-D4D0-4DFD-BBD4-DAFEFD5426EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57791A71-D4D0-4DFD-BBD4-DAFEFD5426EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1EB4A9A3-C2E9-4A42-8ECB-53D7E607893A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EB4A9A3-C2E9-4A42-8ECB-53D7E607893A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EB4A9A3-C2E9-4A42-8ECB-53D7E607893A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EB4A9A3-C2E9-4A42-8ECB-53D7E607893A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E3E38E9D-44CB-4216-9839-4142D6220309}
 	EndGlobalSection
 EndGlobal

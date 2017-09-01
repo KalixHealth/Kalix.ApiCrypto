@@ -1,9 +1,9 @@
-﻿namespace Kalix.ApiCrypto.RSA
+﻿namespace Kalix.ApiCrypto.EC
 {
     /// <summary>
-    /// Advanced options when building an RSA certificate
+    /// Advanced options when building an EC based certificate
     /// </summary>
-    public class RSACertificateBuilderOptions
+    public class ECCertificateBuilderOptions
     {
         /// <summary>
         /// Full distinguished name that will be used in the certificate
@@ -12,14 +12,9 @@
         public string FullSubjectName { get; set; }
 
         /// <summary>
-        /// Name of the internal RSA keypair that is created
+        /// Select from the supported curves, higher key length is more secure
         /// </summary>
-        public string RSAKeyName { get; set; }
-
-        /// <summary>
-        /// Select your RSA key size - Uses Cng which supports 512 to 16384 in 64-bit increments
-        /// </summary>
-        public int? KeySize { get; set; }
+        public ECNamedCurves? ECCurve { get; set; }
 
         /// <summary>
         /// Select from the supported hashing methods, higher key length is more secure

@@ -49,22 +49,6 @@ namespace Kalix.ApiCrypto.Tests.RSA
         }
 
         [Test]
-        public void CreateWithSha1Hash()
-        {
-            var options = new RSACertificateBuilderOptions
-            {
-                FullSubjectName = "CN=Test",
-                HashingMethod = HashingMethods.Sha1
-            };
-
-            var cert = RSACertificateBuilder.CreateNewCertificate(options);
-
-            Assert.AreEqual("CN=Test", cert.Subject);
-            Assert.AreEqual("sha1RSA", cert.SignatureAlgorithm.FriendlyName);
-            Assert.IsTrue(cert.HasPrivateKey);
-        }
-
-        [Test]
         public void CreateWithSha384Hash()
         {
             var options = new RSACertificateBuilderOptions

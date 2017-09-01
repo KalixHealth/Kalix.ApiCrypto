@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using Kalix.ApiCrypto.EC;
+﻿using Kalix.ApiCrypto.EC;
 using Kalix.ApiCrypto.JWT;
-using Newtonsoft.Json;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace Kalix.ApiCrypto.Tests.JWT
 {
@@ -12,22 +11,19 @@ namespace Kalix.ApiCrypto.Tests.JWT
         [Test]
         public void HeaderAndPayloadParsesCorrectly()
         {
-			var options = new ECCertificateBuilderOptions
-			{
-				ECCurve = ECNamedCurves.P256,
-				FullSubjectName = "CN=Test"
-			};
-			var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
+            var options = new ECCertificateBuilderOptions
+            {
+                ECCurve = ECNamedCurves.P256,
+                FullSubjectName = "CN=Test"
+            };
+            var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
+            
+            var token = JwtBuilder.Encode(new { id = 1, org = 1 })
+                .SignUsingECDSA(cert)
+                .UseAdditionalHeaders(new Dictionary<string, object> { { "alg", "ES256" } })
+                .Build();
 
-	        string headerJson;
-	        var token = JsonWebToken.EncodeUsingECDSA(
-		        new {id = 1, org = 1},
-		        cert,
-		        new Dictionary<string, object> {{"alg", "ES256"}},
-		        new JsonSerializerSettings(),
-		        out headerJson);
-
-            var bits = token.Split('.');
+            var bits = token.JsonWebToken.Split('.');
 
             Assert.AreEqual(3, bits.Length);
             Assert.AreEqual("eyJhbGciOiJFUzI1NiJ9", bits[0]);  // HEADER
@@ -37,55 +33,56 @@ namespace Kalix.ApiCrypto.Tests.JWT
         [Test]
         public void ParseBackAndForthWorks()
         {
-			var options = new ECCertificateBuilderOptions
-			{
-				ECCurve = ECNamedCurves.P256,
-				FullSubjectName = "CN=Test"
-			};
-			var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
+            var options = new ECCertificateBuilderOptions
+            {
+                ECCurve = ECNamedCurves.P256,
+                FullSubjectName = "CN=Test"
+            };
+            var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
+            
+            var token = JwtBuilder.Encode(new {id = 1, org = 2})
+                .SignUsingECDSA(cert)
+                .Build();
 
-	        string headerJson;
-	        var token = JsonWebToken.EncodeUsingECDSA(new {id = 1, org = 2}, cert, out headerJson);
+            var result = JwtBuilder.Decode<dynamic>(token.JsonWebToken)
+                .VerifyUsingECDSA(cert)
+                .Build();
 
-	        string headerJsonDecoded;
-	        string payloadJsonDecoded;
-
-	        dynamic result = JsonWebToken.DecodeUsingECDSA<object>(token, cert, out headerJsonDecoded,
-		        out payloadJsonDecoded);
-
-            Assert.AreEqual(1, (int)result.id);
-            Assert.AreEqual(2, (int)result.org);
-			
-			Assert.IsFalse(string.IsNullOrWhiteSpace(headerJsonDecoded));
-	        Assert.IsTrue(string.Equals(headerJson, headerJsonDecoded));
-			Assert.IsFalse(string.IsNullOrWhiteSpace(payloadJsonDecoded));
-	        
+            Assert.AreEqual(1, (int)result.Claims.id);
+            Assert.AreEqual(2, (int)result.Claims.org);
+            
+            Assert.IsFalse(string.IsNullOrWhiteSpace(result.HeaderJson));
+            Assert.IsTrue(string.Equals(token.HeaderJson, result.HeaderJson));
+            Assert.IsFalse(string.IsNullOrWhiteSpace(result.PayloadJson));
+            
 
         }
 
         [Test]
         public void WrongCertificateThrowsError()
         {
-			var options = new ECCertificateBuilderOptions
-			{
-				ECCurve = ECNamedCurves.P256,
-				FullSubjectName = "CN=Test"
-			};
-			var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
-			string headerJson;
-	        var token = JsonWebToken.EncodeUsingECDSA(new {id = 1, org = 2}, cert, out headerJson);
+            var options = new ECCertificateBuilderOptions
+            {
+                ECCurve = ECNamedCurves.P256,
+                FullSubjectName = "CN=Test"
+            };
+            var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
+            var token = JwtBuilder.Encode(new {id = 1, org = 2})
+                .SignUsingECDSA(cert)
+                .Build();
 
-			options = new ECCertificateBuilderOptions
-			{
-				ECCurve = ECNamedCurves.P256,
-				FullSubjectName = "CN=Test"
-			};
-			cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
+            options = new ECCertificateBuilderOptions
+            {
+                ECCurve = ECNamedCurves.P256,
+                FullSubjectName = "CN=Test"
+            };
+            cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
 
             try
             {
-	            string payloadJson;
-	            JsonWebToken.DecodeUsingECDSA<object>(token, cert, out headerJson, out payloadJson);
+                JwtBuilder.Decode<object>(token.JsonWebToken)
+                    .VerifyUsingECDSA(cert)
+                    .Build();
             }
             catch (SignatureVerificationException ex)
             {
@@ -99,23 +96,24 @@ namespace Kalix.ApiCrypto.Tests.JWT
         [Test]
         public void ECDSAKeySizeDoesNotMatchThrowsError()
         {
-	        var options = new ECCertificateBuilderOptions
-	        {
-		        FullSubjectName = "CN=Test",
-		        ECCurve = ECNamedCurves.P521,
-		        HashingMethod = HashingMethods.Sha256,
-		        ECKeyName = "ECDSA_Test" 
-	        };
-			var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
-			string headerJson;
-	        var token = JsonWebToken.EncodeUsingECDSA(new {id = 1, org = 2}, cert, out headerJson);
+            var options = new ECCertificateBuilderOptions
+            {
+                FullSubjectName = "CN=Test",
+                ECCurve = ECNamedCurves.P521,
+                HashingMethod = HashingMethods.Sha256
+            };
+            var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
+            var token = JwtBuilder.Encode(new {id = 1, org = 2})
+                .SignUsingECDSA(cert)
+                .Build();
 
             cert = ECCertificateBuilder.CreateNewSigningCertificate(new ECCertificateBuilderOptions { ECCurve = ECNamedCurves.P256, FullSubjectName = "CN=Test" });
 
             try
             {
-	            string payloadJson;
-	            JsonWebToken.DecodeUsingECDSA<object>(token, cert, out headerJson, out payloadJson);
+                JwtBuilder.Decode<object>(token.JsonWebToken)
+                    .VerifyUsingECDSA(cert)
+                    .Build();
             }
             catch (SignatureVerificationException ex)
             {
@@ -129,23 +127,27 @@ namespace Kalix.ApiCrypto.Tests.JWT
         [Test]
         public void UnknownJWTAlgorithmThrowsError()
         {
-			var options = new ECCertificateBuilderOptions
-			{
-				ECCurve = ECNamedCurves.P256,
+            var options = new ECCertificateBuilderOptions
+            {
+                ECCurve = ECNamedCurves.P256,
 
-				FullSubjectName = "CN=Test"
-			};
-			var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
-			string headerJson;
-	        var token = JsonWebToken.EncodeUsingECDSA(new {id = 1, org = 2}, cert, out headerJson);
+                FullSubjectName = "CN=Test"
+            };
+            var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
+            var token = JwtBuilder.Encode(new {id = 1, org = 2})
+                .SignUsingECDSA(cert)
+                .Build()
+                .JsonWebToken;
+
             var split = token.Split('.');
             split[0] = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSU0EifQ";  // switch header
             token = string.Join(".", split);
 
             try
             {
-	            string payloadJson;
-	            JsonWebToken.DecodeUsingECDSA<object>(token, cert, out headerJson, out payloadJson);
+                JwtBuilder.Decode<object>(token)
+                    .VerifyUsingECDSA(cert)
+                    .Build();
             }
             catch (SignatureVerificationException ex)
             {

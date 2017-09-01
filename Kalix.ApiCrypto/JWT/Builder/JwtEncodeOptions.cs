@@ -44,7 +44,7 @@ namespace Kalix.ApiCrypto.JWT.Builder
         /// </summary>
         /// <param name="signingCertificate">Certificate to use for signing, must include a private key</param>
         /// <returns>Fluent interface for additional options</returns>
-        public JwtEncodeOptions<T> SignUsingECDSA(ECDsaCng signingCertificate)
+        public JwtEncodeOptions<T> SignUsingECDSA(ECDsa signingCertificate)
         {
             var opts = _options.Clone();
             opts.Certificate = signingCertificate;
@@ -73,6 +73,18 @@ namespace Kalix.ApiCrypto.JWT.Builder
         {
             var opts = _options.Clone();
             opts.JsonSerializerSettings = settings;
+            return new JwtEncodeOptions<T>(_claims, opts);
+        }
+
+        /// <summary>
+        /// Specify the hashing algorithm used during signing
+        /// </summary>
+        /// <param name="method">The signing algorithm to use</param>
+        /// <returns>Fluent interface for additional options</returns>
+        public JwtEncodeOptions<T> UseSigningHash(HashingMethods method)
+        {
+            var opts = _options.Clone();
+            opts.SigningHash = method;
             return new JwtEncodeOptions<T>(_claims, opts);
         }
 
@@ -115,7 +127,7 @@ namespace Kalix.ApiCrypto.JWT.Builder
                 var stringToSign = string.Join(".", segments);
                 var bytesToSign = Encoding.UTF8.GetBytes(stringToSign);
 
-                var signature = cert.SignData(bytesToSign);
+                var signature = cert.SignData(bytesToSign, _options.SigningHash.ToHashingName());
                 segments.Add(Base64UrlEncode(signature));
             }
 
@@ -151,7 +163,13 @@ namespace Kalix.ApiCrypto.JWT.Builder
         {
             public JsonSerializerSettings JsonSerializerSettings { get; set; }
             public IDictionary<string, object> Headers { get; set; }
-            public ECDsaCng Certificate { get; set; }
+            public ECDsa Certificate { get; set; }
+            public HashingMethods SigningHash { get; set; }
+
+            public JwtInternalOptions()
+            {
+                SigningHash = HashingMethods.Sha256;
+            }
 
             public JwtInternalOptions Clone()
             {
