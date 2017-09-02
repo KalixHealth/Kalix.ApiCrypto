@@ -20,13 +20,12 @@ namespace Kalix.ApiCrypto.Tests.JWT
             
             var token = JwtBuilder.Encode(new { id = 1, org = 1 })
                 .SignUsingECDSA(cert)
-                .UseAdditionalHeaders(new Dictionary<string, object> { { "alg", "ES256" } })
                 .Build();
 
             var bits = token.JsonWebToken.Split('.');
 
             Assert.AreEqual(3, bits.Length);
-            Assert.AreEqual("eyJhbGciOiJFUzI1NiJ9", bits[0]);  // HEADER
+            Assert.AreEqual("eyJhbGciOiJFUzI1NnMyNTYifQ", bits[0]);  // HEADER
             Assert.AreEqual("eyJpZCI6MSwib3JnIjoxfQ", bits[1]); // DATA
         }
 

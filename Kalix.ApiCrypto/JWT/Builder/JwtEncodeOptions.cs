@@ -109,7 +109,15 @@ namespace Kalix.ApiCrypto.JWT.Builder
 
             if (cert != null)
             {
-                headers["alg"] = string.Format("ES{0}", cert.KeySize);
+                string signingHashAlg;
+                switch(_options.SigningHash)
+                {
+                    case HashingMethods.Sha256: signingHashAlg = "256"; break;
+                    case HashingMethods.Sha384: signingHashAlg = "384"; break;
+                    case HashingMethods.Sha512: signingHashAlg = "512"; break;
+                    default: throw new ArgumentException("Unknown signing hash", nameof(_options.SigningHash));
+                }
+                headers["alg"] = $"ES{cert.KeySize}s{signingHashAlg}";
             }
 
             var segments = new List<string>(cert == null ? 2 : 3);

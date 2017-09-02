@@ -70,18 +70,6 @@ namespace Kalix.ApiCrypto.JWT.Builder
         }
 
         /// <summary>
-        /// Specify the hashing algorithm used during verification of the signature
-        /// </summary>
-        /// <param name="method">The signing algorithm to use</param>
-        /// <returns>Fluent interface for additional options</returns>
-        public JwtDecodeOptions<T> UseSigningHash(HashingMethods method)
-        {
-            var opts = _options.Clone();
-            opts.SigningHash = method;
-            return new JwtDecodeOptions<T>(_token, opts);
-        }
-
-        /// <summary>
         /// This decodes the JWT based on current options
         /// </summary>
         /// <param name="throwIfNotValid">If true will throw a <see cref="SignatureVerificationException"/> if the token is not signed or does not pass</param>
@@ -103,7 +91,7 @@ namespace Kalix.ApiCrypto.JWT.Builder
 
             if (isSigned)
             {
-                verificationResult = Verify(headers, _options.Certificate, headerPart, payloadPart, parts[2], _options.SigningHash);
+                verificationResult = Verify(headers, _options.Certificate, headerPart, payloadPart, parts[2]);
                 isVerified = verificationResult == null;
             }
             else
@@ -132,7 +120,7 @@ namespace Kalix.ApiCrypto.JWT.Builder
             };
         }
 
-        private string Verify(IDictionary<string, object> headers, ECDsa cert, string headerPart, string payloadPart, string signature, HashingMethods hashMethod)
+        private string Verify(IDictionary<string, object> headers, ECDsa cert, string headerPart, string payloadPart, string signature)
         {
             if (cert == null)
             {
@@ -150,9 +138,29 @@ namespace Kalix.ApiCrypto.JWT.Builder
                 return $"Unsupported signing algorithm: {alg}";
             }
 
-            if (cert.KeySize.ToString() != alg.Substring(2))
+            var shaParts = alg.Substring(2).Split('s');
+            if (cert.KeySize.ToString() != shaParts[0])
             {
-                return $"Key size does not match: ES{cert.KeySize} vs {alg}";
+                return $"Key size does not match: ES{cert.KeySize} vs ES{shaParts[0]}";
+            }
+
+            HashingMethods hashMethod = HashingMethods.Sha256;
+            if (shaParts.Length == 2)
+            {
+                switch(shaParts[1])
+                {
+                    case "256":
+                        hashMethod = HashingMethods.Sha256;
+                        break;
+                    case "384":
+                        hashMethod = HashingMethods.Sha384;
+                        break;
+                    case "512":
+                        hashMethod = HashingMethods.Sha512;
+                        break;
+                    default:
+                        return $"Unknown signing sha value {shaParts[1]}";
+                }
             }
 
             var compare = Encoding.UTF8.GetBytes(string.Concat(headerPart, ".", payloadPart));
@@ -194,12 +202,6 @@ namespace Kalix.ApiCrypto.JWT.Builder
         {
             public JsonSerializerSettings JsonSerializerSettings { get; set; }
             public ECDsa Certificate { get; set; }
-            public HashingMethods SigningHash { get; set; }
-
-            public JwtInternalOptions()
-            {
-                SigningHash = HashingMethods.Sha256;
-            }
 
             public JwtInternalOptions Clone()
             {
