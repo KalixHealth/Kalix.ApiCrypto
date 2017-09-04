@@ -30,7 +30,7 @@ namespace Kalix.ApiCrypto.AES
         /// </summary>
         /// <param name="keySize">Required AES key size</param>
         /// <param name="rsaCert">RSA parsed public certificate used to sign</param>
-        /// <param name="rsaPadding">Padding to use during RSA encryption, default is <see cref="RSAEncryptionPadding.Pkcs1"/></param>
+        /// <param name="rsaPadding">Padding to use during RSA encryption, default is <see cref="RSAEncryptionPadding.OaepSHA256"/></param>
         /// <returns>data that can be stored</returns>
         public static byte[] CreateBlob(AESKeySize keySize, Rsa rsaCert, RSAEncryptionPadding rsaPadding = null)
         {
@@ -55,7 +55,7 @@ namespace Kalix.ApiCrypto.AES
             aesProvider.GenerateKey();
 
             // Encrypt using the RSA cert and return
-            return rsaCert.Encrypt(aesProvider.Key, rsaPadding ?? RSAEncryptionPadding.Pkcs1);
+            return rsaCert.Encrypt(aesProvider.Key, rsaPadding ?? RSAEncryptionPadding.OaepSHA256);
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace Kalix.ApiCrypto.AES
         /// <returns>Encryptor that can be used to encrypt/decrypt any number of documents</returns>
         public static AESEncryptor CreateEncryptor(byte[] blob, Rsa rsaCert, RSAEncryptionPadding rsaPadding = null)
         {
-            var key = rsaCert.Decrypt(blob, rsaPadding ?? RSAEncryptionPadding.Pkcs1);
+            var key = rsaCert.Decrypt(blob, rsaPadding ?? RSAEncryptionPadding.OaepSHA256);
             return new AESEncryptor(key);
         }
     }
