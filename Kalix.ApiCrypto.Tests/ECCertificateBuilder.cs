@@ -58,9 +58,8 @@ namespace Kalix.ApiCrypto.EC
             }
 
             var hashAlg = (buildOptions.HashingMethod ?? HashingMethods.Sha256).ToHashingName();
-            using (var ecdsa = new ECDsaCng(curve))
+            using (var ecdsa = ECDsa.Create(curve))
             {
-                ecdsa.HashAlgorithm = new CngAlgorithm(hashAlg.Name);
                 var request = new CertificateRequest(name, ecdsa, hashAlg);
                 request.CertificateExtensions.Add(new X509BasicConstraintsExtension(false, false, 0, false));
                 request.CertificateExtensions.Add(new X509KeyUsageExtension(X509KeyUsageFlags.CrlSign, false));
