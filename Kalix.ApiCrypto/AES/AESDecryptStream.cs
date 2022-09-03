@@ -13,6 +13,7 @@ namespace Kalix.ApiCrypto.AES;
 public class AESDecryptStream : Stream
 {
     private readonly Stream _internalStream;
+    private readonly bool _leaveOpen;
     private readonly bool _isRead;
     private readonly byte[] _aesKey;
 
@@ -26,7 +27,7 @@ public class AESDecryptStream : Stream
         
     private bool _isDisposed;
 
-    public AESDecryptStream(byte[] aesKey, Stream data, bool readMode)
+    public AESDecryptStream(byte[] aesKey, Stream data, bool readMode, bool leaveOpen = false)
     {
         if (readMode && !data.CanRead)
         {
@@ -39,6 +40,7 @@ public class AESDecryptStream : Stream
         }
 
         _internalStream = data;
+        _leaveOpen = leaveOpen;
         _isRead = readMode;
         _aesKey = aesKey;
     }
@@ -60,7 +62,7 @@ public class AESDecryptStream : Stream
 
     public override int Read(byte[] buffer, int offset, int count)
     {
-        if (_isDisposed) { throw new ObjectDisposedException("AESDecryptStream"); }
+        if (_isDisposed) { throw new ObjectDisposedException(nameof(AESDecryptStream)); }
 
         if(_cryptoStream == null)
         {
@@ -74,7 +76,7 @@ public class AESDecryptStream : Stream
             var ivLength = BitConverter.ToInt32(ivLengthBytes, 0);
             var iv = new byte[ivLength];
             read = _internalStream.Read(iv, 0, ivLength);
-            if(read != ivLength)
+            if (read != ivLength)
             {
                 throw new InvalidOperationException("Stream did not have enough data for IV");
             }
@@ -83,7 +85,7 @@ public class AESDecryptStream : Stream
             aesProvider.Key = _aesKey;
             aesProvider.IV = iv;
             var decryptor = aesProvider.CreateDecryptor();
-            _cryptoStream = new CryptoStream(_internalStream, decryptor, CryptoStreamMode.Read);
+            _cryptoStream = new CryptoStream(_internalStream, decryptor, CryptoStreamMode.Read, _leaveOpen);
         }
 
         return _cryptoStream.Read(buffer, offset, count);
@@ -91,7 +93,7 @@ public class AESDecryptStream : Stream
 
     public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken ct = default)
     {
-        if (_isDisposed) { throw new ObjectDisposedException("AESDecryptStream"); }
+        if (_isDisposed) { throw new ObjectDisposedException(nameof(AESDecryptStream)); }
 
         if (_cryptoStream == null)
         {
@@ -114,7 +116,7 @@ public class AESDecryptStream : Stream
             aesProvider.Key = _aesKey;
             aesProvider.IV = iv;
             var decryptor = aesProvider.CreateDecryptor();
-            _cryptoStream = new CryptoStream(_internalStream, decryptor, CryptoStreamMode.Read);
+            _cryptoStream = new CryptoStream(_internalStream, decryptor, CryptoStreamMode.Read, _leaveOpen);
         }
 
         return await _cryptoStream.ReadAsync(buffer, ct);
@@ -127,7 +129,7 @@ public class AESDecryptStream : Stream
 
     public override void Write(byte[] buffer, int offset, int count)
     {
-        if (_isDisposed) { throw new ObjectDisposedException("AESDecryptStream"); }
+        if (_isDisposed) { throw new ObjectDisposedException(nameof(AESDecryptStream)); }
 
         // Build up internal buffers until we have enough to create crypto stream...
         if(_cryptoStream == null)
@@ -167,7 +169,7 @@ public class AESDecryptStream : Stream
                     aesProvider.Key = _aesKey;
                     aesProvider.IV = _iv;
                     var decryptor = aesProvider.CreateDecryptor();
-                    _cryptoStream = new CryptoStream(_internalStream, decryptor, CryptoStreamMode.Write);
+                    _cryptoStream = new CryptoStream(_internalStream, decryptor, CryptoStreamMode.Write, _leaveOpen);
 
                     // Free up some memory...
                     _iv = null;
@@ -184,7 +186,7 @@ public class AESDecryptStream : Stream
 
     public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken ct = default)
     {
-        if (_isDisposed) { throw new ObjectDisposedException("AESDecryptStream"); }
+        if (_isDisposed) { throw new ObjectDisposedException(nameof(AESDecryptStream)); }
 
         var count = buffer.Length;
         var offset = 0;
@@ -227,7 +229,7 @@ public class AESDecryptStream : Stream
                     aesProvider.Key = _aesKey;
                     aesProvider.IV = _iv;
                     var decryptor = aesProvider.CreateDecryptor();
-                    _cryptoStream = new CryptoStream(_internalStream, decryptor, CryptoStreamMode.Write);
+                    _cryptoStream = new CryptoStream(_internalStream, decryptor, CryptoStreamMode.Write, _leaveOpen);
 
                     // Free up some memory...
                     _iv = null;
@@ -249,7 +251,7 @@ public class AESDecryptStream : Stream
 
     public override void Flush()
     {
-        if (_isDisposed) { throw new ObjectDisposedException("AESDecryptStream"); }
+        if (_isDisposed) { throw new ObjectDisposedException(nameof(AESDecryptStream)); }
 
         if (_cryptoStream != null)
         {
@@ -261,7 +263,7 @@ public class AESDecryptStream : Stream
 
     public override async Task FlushAsync(CancellationToken ct)
     {
-        if (_isDisposed) { throw new ObjectDisposedException("AESDecryptStream"); }
+        if (_isDisposed) { throw new ObjectDisposedException(nameof(AESDecryptStream)); }
 
         if (_cryptoStream != null)
         {
@@ -283,11 +285,27 @@ public class AESDecryptStream : Stream
                 }
 
                 _cryptoStream.Dispose();
-                _isDisposed = true;
             }
+            _isDisposed = true;
         }
 
         base.Dispose(disposing);
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        if (!_isDisposed && _cryptoStream != null)
+        {
+            if (!_isRead && !_cryptoStream.HasFlushedFinalBlock)
+            {
+                await _cryptoStream.FlushFinalBlockAsync();
+            }
+
+            await _cryptoStream.DisposeAsync();
+        }
+        _isDisposed = true;
+        await base.DisposeAsync();
+        GC.SuppressFinalize(this);
     }
 
     public override long Length

@@ -20,7 +20,7 @@ public class AESEncryptStream : Stream
     private byte[] _initialBytes;
     private bool _isDisposed;
 
-    public AESEncryptStream(byte[] aesKey, Stream data, bool readMode)
+    public AESEncryptStream(byte[] aesKey, Stream data, bool readMode, bool leaveOpen = false)
     {
         if (readMode && !data.CanRead)
         {
@@ -39,7 +39,7 @@ public class AESEncryptStream : Stream
         aesProvider.Key = aesKey;
         aesProvider.GenerateIV();
         var encryptor = aesProvider.CreateEncryptor();
-        _cryptoStream = new CryptoStream(data, encryptor, _isRead ? CryptoStreamMode.Read : CryptoStreamMode.Write);
+        _cryptoStream = new CryptoStream(data, encryptor, _isRead ? CryptoStreamMode.Read : CryptoStreamMode.Write, leaveOpen);
 
         _initialBytesWritten = 0;
         _initialBytes = new byte[aesProvider.IV.Length + 4];
@@ -64,7 +64,7 @@ public class AESEncryptStream : Stream
 
     public override int Read(byte[] buffer, int offset, int count)
     {
-        if (_isDisposed) { throw new ObjectDisposedException("AESEncryptStream"); }
+        if (_isDisposed) { throw new ObjectDisposedException(nameof(AESEncryptStream)); }
 
         int read = 0;
         if(_initialBytes != null)
@@ -94,7 +94,7 @@ public class AESEncryptStream : Stream
 
     public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken ct = default)
     {
-        if (_isDisposed) { throw new ObjectDisposedException("AESEncryptStream"); }
+        if (_isDisposed) { throw new ObjectDisposedException(nameof(AESEncryptStream)); }
 
         int read = 0;
         var count = buffer.Length;
@@ -132,7 +132,7 @@ public class AESEncryptStream : Stream
 
     public override void Write(byte[] buffer, int offset, int count)
     {
-        if (_isDisposed) { throw new ObjectDisposedException("AESEncryptStream"); }
+        if (_isDisposed) { throw new ObjectDisposedException(nameof(AESEncryptStream)); }
 
         if(_initialBytes != null)
         {
@@ -145,7 +145,7 @@ public class AESEncryptStream : Stream
 
     public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken ct = default)
     {
-        if (_isDisposed) { throw new ObjectDisposedException("AESEncryptStream"); }
+        if (_isDisposed) { throw new ObjectDisposedException(nameof(AESEncryptStream)); }
 
         if (_initialBytes != null)
         {
@@ -163,7 +163,7 @@ public class AESEncryptStream : Stream
 
     public override void Flush()
     {
-        if (_isDisposed) { throw new ObjectDisposedException("AESEncryptStream"); }
+        if (_isDisposed) { throw new ObjectDisposedException(nameof(AESEncryptStream)); }
 
         _cryptoStream.Flush();
         _internalStream.Flush();
@@ -171,7 +171,7 @@ public class AESEncryptStream : Stream
 
     public override async Task FlushAsync(CancellationToken ct)
     {
-        if (_isDisposed) { throw new ObjectDisposedException("AESEncryptStream"); }
+        if (_isDisposed) { throw new ObjectDisposedException(nameof(AESEncryptStream)); }
 
         await _cryptoStream.FlushAsync(ct);
         await _internalStream.FlushAsync(ct);
@@ -191,6 +191,22 @@ public class AESEncryptStream : Stream
         }
 
         base.Dispose(disposing);
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        if (!_isDisposed)
+        {
+            if (!_isRead && !_cryptoStream.HasFlushedFinalBlock)
+            {
+                await _cryptoStream.FlushFinalBlockAsync();
+            }
+
+            await _cryptoStream.DisposeAsync();
+            _isDisposed = true;
+        }
+        await base.DisposeAsync();
+        GC.SuppressFinalize(this);
     }
 
     public override long Length
