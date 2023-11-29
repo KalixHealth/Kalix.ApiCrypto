@@ -12,9 +12,9 @@ public class ECCertificateBuilderTests
     {
         var cert = ECCertificateBuilder.CreateNewSigningCertificate("Test");
 
-        Assert.AreEqual("CN=Test", cert.Subject);
-        Assert.AreEqual("sha256ECDSA", cert.SignatureAlgorithm.FriendlyName);
-        Assert.IsTrue(cert.HasPrivateKey);
+        Assert.That("CN=Test", Is.EqualTo(cert.Subject));
+        Assert.That("sha256ECDSA", Is.EqualTo(cert.SignatureAlgorithm.FriendlyName));
+        Assert.That(cert.HasPrivateKey);
     }
 
     [Test]
@@ -28,9 +28,9 @@ public class ECCertificateBuilderTests
 
         var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
 
-        Assert.AreEqual("CN=Test", cert.Subject);
-        Assert.AreEqual("sha256ECDSA", cert.SignatureAlgorithm.FriendlyName);
-        Assert.IsTrue(cert.HasPrivateKey);
+        Assert.That("CN=Test", Is.EqualTo(cert.Subject));
+        Assert.That("sha256ECDSA", Is.EqualTo(cert.SignatureAlgorithm.FriendlyName));
+        Assert.That(cert.HasPrivateKey);
     }
 
     [Test]
@@ -44,9 +44,9 @@ public class ECCertificateBuilderTests
 
         var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
 
-        Assert.AreEqual("CN=Test", cert.Subject);
-        Assert.AreEqual("sha256ECDSA", cert.SignatureAlgorithm.FriendlyName);
-        Assert.IsTrue(cert.HasPrivateKey);
+        Assert.That("CN=Test", Is.EqualTo(cert.Subject));
+        Assert.That("sha256ECDSA", Is.EqualTo(cert.SignatureAlgorithm.FriendlyName));
+        Assert.That(cert.HasPrivateKey);
     }
 
     [Test]
@@ -60,9 +60,9 @@ public class ECCertificateBuilderTests
 
         var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
 
-        Assert.AreEqual("CN=Test", cert.Subject);
-        Assert.AreEqual("sha384ECDSA", cert.SignatureAlgorithm.FriendlyName);
-        Assert.IsTrue(cert.HasPrivateKey);
+        Assert.That("CN=Test", Is.EqualTo(cert.Subject));
+        Assert.That("sha384ECDSA", Is.EqualTo(cert.SignatureAlgorithm.FriendlyName));
+        Assert.That(cert.HasPrivateKey);
     }
 
     [Test]
@@ -76,9 +76,9 @@ public class ECCertificateBuilderTests
 
         var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
 
-        Assert.AreEqual("CN=Test", cert.Subject);
-        Assert.AreEqual("sha512ECDSA", cert.SignatureAlgorithm.FriendlyName);
-        Assert.IsTrue(cert.HasPrivateKey);
+        Assert.That("CN=Test", Is.EqualTo(cert.Subject));
+        Assert.That("sha512ECDSA", Is.EqualTo(cert.SignatureAlgorithm.FriendlyName));
+        Assert.That(cert.HasPrivateKey);
     }
 
     [Test]

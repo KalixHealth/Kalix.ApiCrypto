@@ -24,7 +24,7 @@ public class ECCertificateParserTest
 
             var cng = ECDSACertificateParser.ParsePrivateCertificate(cert);
 
-            Assert.IsNotNull(cng);
+            Assert.That(cng, Is.Not.Null);
         }
 
         [Test]
@@ -40,7 +40,7 @@ public class ECCertificateParserTest
 
             var cng = ECDSACertificateParser.ParsePrivateCertificate(cert);
 
-            Assert.IsNotNull(cng);
+            Assert.That(cng, Is.Not.Null);
         }
 
         [Test]
@@ -56,7 +56,7 @@ public class ECCertificateParserTest
 
             var cng = ECDSACertificateParser.ParsePrivateCertificate(cert);
 
-            Assert.IsNotNull(cng);
+            Assert.That(cng, Is.Not.Null);
         }
 
         [Test]
@@ -89,7 +89,7 @@ public class ECCertificateParserTest
 
             var cng = ECDSACertificateParser.ParsePublicCertificate(cert);
 
-            Assert.IsNotNull(cng);
+            Assert.That(cng, Is.Not.Null);
         }
 
         [Test]
@@ -105,7 +105,7 @@ public class ECCertificateParserTest
 
             var cng = ECDSACertificateParser.ParsePublicCertificate(cert);
 
-            Assert.IsNotNull(cng);
+            Assert.That(cng, Is.Not.Null);
         }
 
         [Test]
@@ -121,7 +121,7 @@ public class ECCertificateParserTest
 
             var cng = ECDSACertificateParser.ParsePublicCertificate(cert);
 
-            Assert.IsNotNull(cng);
+            Assert.That(cng, Is.Not.Null);
         }
 
         [Test]
@@ -132,7 +132,7 @@ public class ECCertificateParserTest
             var publicCert = new X509Certificate2(data);
 
             var cng = ECDSACertificateParser.ParsePublicCertificate(publicCert);
-            Assert.IsNotNull(cng);
+            Assert.That(cng, Is.Not.Null);
         }
     }
 }

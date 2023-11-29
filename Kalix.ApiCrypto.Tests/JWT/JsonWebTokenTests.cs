@@ -23,9 +23,9 @@ public class JsonWebTokenTests
 
         var bits = token.JsonWebToken.Split('.');
 
-        Assert.AreEqual(3, bits.Length);
-        Assert.AreEqual("eyJhbGciOiJFUzI1NnMyNTYifQ", bits[0]);  // HEADER
-        Assert.AreEqual("eyJpZCI6MSwib3JnIjoxfQ", bits[1]); // DATA
+        Assert.That(3, Is.EqualTo(bits.Length));
+        Assert.That("eyJhbGciOiJFUzI1NnMyNTYifQ", Is.EqualTo(bits[0]));  // HEADER
+        Assert.That("eyJpZCI6MSwib3JnIjoxfQ", Is.EqualTo(bits[1])); // DATA
     }
 
     [Test]
@@ -46,12 +46,12 @@ public class JsonWebTokenTests
             .VerifyUsingECDSA(cert)
             .Build();
 
-        Assert.AreEqual(1, (int)result.Claims.id);
-        Assert.AreEqual(2, (int)result.Claims.org);
+        Assert.That(1, Is.EqualTo((int)result.Claims.id));
+        Assert.That(2, Is.EqualTo((int)result.Claims.org));
             
-        Assert.IsFalse(string.IsNullOrWhiteSpace(result.HeaderJson));
-        Assert.IsTrue(string.Equals(token.HeaderJson, result.HeaderJson));
-        Assert.IsFalse(string.IsNullOrWhiteSpace(result.PayloadJson));
+        Assert.That(!string.IsNullOrWhiteSpace(result.HeaderJson));
+        Assert.That(string.Equals(token.HeaderJson, result.HeaderJson));
+        Assert.That(!string.IsNullOrWhiteSpace(result.PayloadJson));
             
 
     }
@@ -84,7 +84,7 @@ public class JsonWebTokenTests
         }
         catch (SignatureVerificationException ex)
         {
-            Assert.AreEqual("Token does not match signature", ex.Message);
+            Assert.That("Token does not match signature", Is.EqualTo(ex.Message));
             return;
         }
 
@@ -115,7 +115,7 @@ public class JsonWebTokenTests
         }
         catch (SignatureVerificationException ex)
         {
-            Assert.AreEqual("Key size does not match: ES256 vs ES521", ex.Message);
+            Assert.That("Key size does not match: ES256 vs ES521", Is.EqualTo(ex.Message));
             return;
         }
 
@@ -149,7 +149,7 @@ public class JsonWebTokenTests
         }
         catch (SignatureVerificationException ex)
         {
-            Assert.AreEqual("Unsupported signing algorithm: RSA", ex.Message);
+            Assert.That("Unsupported signing algorithm: RSA", Is.EqualTo(ex.Message));
             return;
         }
 

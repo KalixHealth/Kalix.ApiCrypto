@@ -28,7 +28,7 @@ public class AESEncryptorTests
             decrypted = ms.ToArray();
         }
 
-        Assert.AreEqual("Test message of awesome", Encoding.UTF8.GetString(decrypted));
+        Assert.That("Test message of awesome", Is.EqualTo(Encoding.UTF8.GetString(decrypted)));
     }
 
     [Test]
@@ -46,7 +46,7 @@ public class AESEncryptorTests
             decrypted = sr.ReadToEnd();
         }
 
-        Assert.AreEqual("Test message of awesome", decrypted);
+        Assert.That("Test message of awesome", Is.EqualTo(decrypted));
     }
 
     [Test]
@@ -58,7 +58,7 @@ public class AESEncryptorTests
         var encypted = encryptor.Encrypt(data);
         var decrypted = encryptor.Decrypt(encypted);
 
-        Assert.AreEqual("Test message of awesome", Encoding.UTF8.GetString(decrypted));
+        Assert.That("Test message of awesome", Is.EqualTo(Encoding.UTF8.GetString(decrypted)));
     }
 
     [Test]
@@ -70,7 +70,7 @@ public class AESEncryptorTests
         var encypted = Convert.ToBase64String(encryptor.Encrypt(data));
         var encypted2 = Convert.ToBase64String(encryptor.Encrypt(data));
 
-        Assert.AreNotEqual(encypted, encypted2);
+        Assert.That(encypted, Is.Not.EqualTo(encypted2));
     }
 
     [Test]
@@ -82,7 +82,7 @@ public class AESEncryptorTests
         var encypted = encryptor.Encrypt(data);
         var decrypted = encryptor.Decrypt(encypted);
 
-        Assert.AreEqual("Test message of awesome", Encoding.UTF8.GetString(decrypted));
+        Assert.That("Test message of awesome", Is.EqualTo(Encoding.UTF8.GetString(decrypted)));
     }
 
     [Test]
@@ -94,7 +94,7 @@ public class AESEncryptorTests
         var encypted = Convert.ToBase64String(encryptor.Encrypt(data));
         var encypted2 = Convert.ToBase64String(encryptor.Encrypt(data));
 
-        Assert.AreNotEqual(encypted, encypted2);
+        Assert.That(encypted, Is.Not.EqualTo(encypted2));
     }
 
     [Test]
@@ -106,7 +106,7 @@ public class AESEncryptorTests
         var encypted = encryptor.Encrypt(data);
         var decrypted = encryptor.Decrypt(encypted);
 
-        Assert.AreEqual("Test message of awesome", Encoding.UTF8.GetString(decrypted));
+        Assert.That("Test message of awesome", Is.EqualTo(Encoding.UTF8.GetString(decrypted)));
     }
 
     [Test]
@@ -118,7 +118,7 @@ public class AESEncryptorTests
         var encypted = Convert.ToBase64String(encryptor.Encrypt(data));
         var encypted2 = Convert.ToBase64String(encryptor.Encrypt(data));
 
-        Assert.AreNotEqual(encypted, encypted2);
+        Assert.That(encypted, Is.Not.EqualTo(encypted2));
     }
 
     [Test]
@@ -126,7 +126,7 @@ public class AESEncryptorTests
     {
         Assert.Throws(typeof(CryptographicException), () =>
         {
-            var encryptor = new AESEncryptor(new byte[] { 20, 19, 29, 28, 13 });
+            var encryptor = new AESEncryptor([20, 19, 29, 28, 13]);
             var data = Encoding.UTF8.GetBytes("Test message of awesome");
             var encypted = Convert.ToBase64String(encryptor.Encrypt(data));
         });
@@ -141,7 +141,7 @@ public class AESEncryptorTests
         var encypted = encryptor.Encrypt(data);
         var decrypted = encryptor.Decrypt(encypted);
 
-        Assert.AreEqual(0, decrypted.Length);
+        Assert.That(0, Is.EqualTo(decrypted.Length));
     }
 
     private static AESEncryptor CreateEncryptor(int keySizeInt)

@@ -23,7 +23,7 @@ public class RSACertificateParserTest
             var cert = RSACertificateBuilder.CreateNewCertificate(options);
             var cng = RSACertificateParser.ParsePrivateCertificate(cert);
 
-            Assert.IsNotNull(cng);
+            Assert.That(cng, Is.Not.Null);
         }
 
         [Test]
@@ -38,7 +38,7 @@ public class RSACertificateParserTest
             var cert = RSACertificateBuilder.CreateNewCertificate(options);
             var cng = RSACertificateParser.ParsePrivateCertificate(cert);
 
-            Assert.IsNotNull(cng);
+            Assert.That(cng, Is.Not.Null);
         }
 
         [Test]
@@ -53,7 +53,7 @@ public class RSACertificateParserTest
             var cert = RSACertificateBuilder.CreateNewCertificate(options);
             var cng = RSACertificateParser.ParsePrivateCertificate(cert);
 
-            Assert.IsNotNull(cng);
+            Assert.That(cng, Is.Not.Null);
         }
 
         [Test]
@@ -85,7 +85,7 @@ public class RSACertificateParserTest
             var cert = RSACertificateBuilder.CreateNewCertificate(options);
             var cng = RSACertificateParser.ParsePublicCertificate(cert);
 
-            Assert.IsNotNull(cng);
+            Assert.That(cng, Is.Not.Null);
         }
 
         [Test]
@@ -100,7 +100,7 @@ public class RSACertificateParserTest
             var cert = RSACertificateBuilder.CreateNewCertificate(options);
             var cng = RSACertificateParser.ParsePublicCertificate(cert);
 
-            Assert.IsNotNull(cng);
+            Assert.That(cng, Is.Not.Null);
         }
 
         [Test]
@@ -115,7 +115,7 @@ public class RSACertificateParserTest
             var cert = RSACertificateBuilder.CreateNewCertificate(options);
             var cng = RSACertificateParser.ParsePublicCertificate(cert);
 
-            Assert.IsNotNull(cng);
+            Assert.That(cng, Is.Not.Null);
         }
 
         [Test]
@@ -126,7 +126,7 @@ public class RSACertificateParserTest
             var publicCert = new X509Certificate2(data);
 
             var cng = RSACertificateParser.ParsePublicCertificate(publicCert);
-            Assert.IsNotNull(cng);
+            Assert.That(cng, Is.Not.Null);
         }
     }
 }

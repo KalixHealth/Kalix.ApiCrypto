@@ -11,9 +11,9 @@ public class RSACertificateBuilderTests
     {
         var cert = RSACertificateBuilder.CreateNewCertificate("Test");
 
-        Assert.AreEqual("CN=Test", cert.Subject);
-        Assert.AreEqual("sha256RSA", cert.SignatureAlgorithm.FriendlyName);
-        Assert.IsTrue(cert.HasPrivateKey);
+        Assert.That("CN=Test", Is.EqualTo(cert.Subject));
+        Assert.That("sha256RSA", Is.EqualTo(cert.SignatureAlgorithm.FriendlyName));
+        Assert.That(cert.HasPrivateKey);
     }
 
     [Test]
@@ -27,9 +27,9 @@ public class RSACertificateBuilderTests
 
         var cert = RSACertificateBuilder.CreateNewCertificate(options);
 
-        Assert.AreEqual("CN=Test", cert.Subject);
-        Assert.AreEqual("sha256RSA", cert.SignatureAlgorithm.FriendlyName);
-        Assert.IsTrue(cert.HasPrivateKey);
+        Assert.That("CN=Test", Is.EqualTo(cert.Subject));
+        Assert.That("sha256RSA", Is.EqualTo(cert.SignatureAlgorithm.FriendlyName));
+        Assert.That(cert.HasPrivateKey);
     }
 
     [Test]
@@ -43,9 +43,9 @@ public class RSACertificateBuilderTests
 
         var cert = RSACertificateBuilder.CreateNewCertificate(options);
 
-        Assert.AreEqual("CN=Test", cert.Subject);
-        Assert.AreEqual("sha256RSA", cert.SignatureAlgorithm.FriendlyName);
-        Assert.IsTrue(cert.HasPrivateKey);
+        Assert.That("CN=Test", Is.EqualTo(cert.Subject));
+        Assert.That("sha256RSA", Is.EqualTo(cert.SignatureAlgorithm.FriendlyName));
+        Assert.That(cert.HasPrivateKey);
     }
 
     [Test]
@@ -59,9 +59,9 @@ public class RSACertificateBuilderTests
 
         var cert = RSACertificateBuilder.CreateNewCertificate(options);
 
-        Assert.AreEqual("CN=Test", cert.Subject);
-        Assert.AreEqual("sha384RSA", cert.SignatureAlgorithm.FriendlyName);
-        Assert.IsTrue(cert.HasPrivateKey);
+        Assert.That("CN=Test", Is.EqualTo(cert.Subject));
+        Assert.That("sha384RSA", Is.EqualTo(cert.SignatureAlgorithm.FriendlyName));
+        Assert.That(cert.HasPrivateKey);
     }
 
     [Test]
@@ -75,8 +75,8 @@ public class RSACertificateBuilderTests
 
         var cert = RSACertificateBuilder.CreateNewCertificate(options);
 
-        Assert.AreEqual("CN=Test", cert.Subject);
-        Assert.AreEqual("sha512RSA", cert.SignatureAlgorithm.FriendlyName);
-        Assert.IsTrue(cert.HasPrivateKey);
+        Assert.That("CN=Test", Is.EqualTo(cert.Subject));
+        Assert.That("sha512RSA", Is.EqualTo(cert.SignatureAlgorithm.FriendlyName));
+        Assert.That(cert.HasPrivateKey);
     }
 }
