@@ -93,7 +93,7 @@ public class ECCertificateBuilderTests
         var cert = ECCertificateBuilder.CreateNewSigningCertificate(options);
         var data = cert.Export(X509ContentType.Pkcs12, "password");
 
-        var reloaded = new X509Certificate2(data, "password");
+        var reloaded = X509CertificateLoader.LoadPkcs12(data, "password");
         ECDSACertificateParser.ParsePrivateCertificate(reloaded);
     }
 }

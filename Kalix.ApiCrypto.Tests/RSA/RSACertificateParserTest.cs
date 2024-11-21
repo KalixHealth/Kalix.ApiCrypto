@@ -59,11 +59,11 @@ public class RSACertificateParserTest
         [Test]
         public void NoPublicKeyThrowsError()
         {
-            Assert.Throws(typeof(InvalidOperationException), () =>
+            Assert.Throws<InvalidOperationException>(() =>
             {
                 var cert = RSACertificateBuilder.CreateNewCertificate("Test");
                 var data = cert.Export(X509ContentType.Cert);
-                var publicCert = new X509Certificate2(data);
+                var publicCert = X509CertificateLoader.LoadCertificate(data);
 
                 RSACertificateParser.ParsePrivateCertificate(publicCert);
             });
@@ -123,7 +123,7 @@ public class RSACertificateParserTest
         {
             var cert = RSACertificateBuilder.CreateNewCertificate("Test");
             var data = cert.Export(X509ContentType.Cert);
-            var publicCert = new X509Certificate2(data);
+            var publicCert = X509CertificateLoader.LoadCertificate(data);
 
             var cng = RSACertificateParser.ParsePublicCertificate(publicCert);
             Assert.That(cng, Is.Not.Null);

@@ -62,11 +62,11 @@ public class ECCertificateParserTest
         [Test]
         public void NoPublicKeyThrowsError()
         {
-            Assert.Throws(typeof(InvalidOperationException), () =>
+            Assert.Throws<InvalidOperationException>(() =>
             {
                 var cert = ECCertificateBuilder.CreateNewSigningCertificate("Test");
                 var data = cert.Export(X509ContentType.Cert);
-                var publicCert = new X509Certificate2(data);
+                var publicCert = X509CertificateLoader.LoadCertificate(data);
 
                 ECDSACertificateParser.ParsePrivateCertificate(publicCert);
             });
@@ -129,7 +129,7 @@ public class ECCertificateParserTest
         {
             var cert = ECCertificateBuilder.CreateNewSigningCertificate("Test");
             var data = cert.Export(X509ContentType.Cert);
-            var publicCert = new X509Certificate2(data);
+            var publicCert = X509CertificateLoader.LoadCertificate(data);
 
             var cng = ECDSACertificateParser.ParsePublicCertificate(publicCert);
             Assert.That(cng, Is.Not.Null);

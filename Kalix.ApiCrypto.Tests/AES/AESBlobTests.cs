@@ -47,7 +47,7 @@ public class AESBlobTests
     public void CanCreateWithPublicKeyOnly()
     {
         var cert = RSACertificateBuilder.CreateNewCertificate(new RSACertificateBuilderOptions { FullSubjectName = "CN=Test", KeySize = 1024 });
-        var publicCert = new X509Certificate2(cert.Export(X509ContentType.Cert));
+        var publicCert = X509CertificateLoader.LoadCertificate(cert.Export(X509ContentType.Cert));
 
         AESBlob.CreateBlob(AESKeySize.AES256, publicCert);
     }
@@ -55,10 +55,10 @@ public class AESBlobTests
     [Test]
     public void CannotDecrpytWithoutPrivateKey()
     {
-        Assert.Throws(typeof(InvalidOperationException), () =>
+        Assert.Throws<InvalidOperationException>(() =>
         {
             var cert = RSACertificateBuilder.CreateNewCertificate(new RSACertificateBuilderOptions { FullSubjectName = "CN=Test", KeySize = 1024 });
-            var publicCert = new X509Certificate2(cert.Export(X509ContentType.Cert));
+            var publicCert = X509CertificateLoader.LoadCertificate(cert.Export(X509ContentType.Cert));
 
             var blob = AESBlob.CreateBlob(AESKeySize.AES256, publicCert);
             AESBlob.CreateEncryptor(blob, publicCert);
